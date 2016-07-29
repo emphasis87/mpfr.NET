@@ -1,13 +1,15 @@
-// mpfrNET.h
-
 #pragma once
+
+#include "mpfr.h"
+#include "gmp.h"
 
 using namespace System;
 
 namespace mpfrNET
 {
-	public ref class Class1
+	public ref class Mpfr
 	{
-		// TODO: Add your methods for this class here.
+	public:
+		void Print();
 	};
 }
