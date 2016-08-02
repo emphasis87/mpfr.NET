@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ArbitraryPrecision;
 
 namespace mpfrNET.TestApp
 {
@@ -10,6 +11,8 @@ namespace mpfrNET.TestApp
 
 			try
 			{
+				//var dec = new BigDecimal(2, 200);
+				//Console.WriteLine(dec.ToString());
 				var mpfr = new Mpfr();
 				mpfr.Print();
 			}

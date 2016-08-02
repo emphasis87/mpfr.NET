@@ -5,7 +5,7 @@
 
 #include "mpfrNET.h"
 
-void mpfrNET::Mpfr::Print()
+void System::ArbitraryPrecision::Mpfr::Print()
 {
 	mpfr_t x;
 	int value = 2;

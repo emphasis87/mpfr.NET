@@ -5,7 +5,7 @@
 
 using namespace System;
 
-namespace mpfrNET
+namespace System::ArbitraryPrecision
 {
 	public ref class Mpfr
 	{
