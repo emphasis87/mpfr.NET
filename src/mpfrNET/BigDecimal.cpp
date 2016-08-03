@@ -30,7 +30,7 @@ namespace System::ArbitraryPrecision {
 		}
 	}
 #pragma endregion
-#pragma region value
+#pragma region Value
 	mpfr_ptr BigDecimal::value::get() {
 		if (_value == nullptr) {
 			_value = new mpfr_t;
@@ -83,39 +83,6 @@ namespace System::ArbitraryPrecision {
 		}
 	}
 #pragma endregion
-#pragma region Static Instances
-
-	BigDecimal^ BigDecimal::NaN::get() {
-		BigDecimal^ result = gcnew BigDecimal();
-		mpfr_set_nan(result->value);
-		return result;
-	}
-
-	BigDecimal^ BigDecimal::PositiveInfinity::get() {
-		BigDecimal^ result = gcnew BigDecimal();
-		mpfr_set_inf(result->value, +1);
-		return result;
-	}
-
-	BigDecimal^ BigDecimal::NegativeInfinity::get() {
-		BigDecimal^ result = gcnew BigDecimal();
-		mpfr_set_inf(result->value, -1);
-		return result;
-	}
-
-	BigDecimal^ BigDecimal::PositiveZero::get() {
-		BigDecimal^ result = gcnew BigDecimal();
-		mpfr_set_zero(result->value, +1);
-		return result;
-	}
-
-	BigDecimal^ BigDecimal::NegativeZero::get() {
-		BigDecimal^ result = gcnew BigDecimal();
-		mpfr_set_zero(result->value, -1);
-		return result;
-	}
-
-#pragma endregion
 
 	BigDecimal^ BigDecimal::Combine(BigDecimal^ x, BigDecimal^ y) {
 		int precision = Math::Max(x->Precision, y->Precision);
@@ -160,46 +127,6 @@ namespace System::ArbitraryPrecision {
 		mpfr_add_si(x->value, x->value, -1, MPFR_RNDN);
 		return x;
 	}
-#pragma endregion
-#pragma region Inplace Operations
-
-	BigDecimal^ BigDecimal::IncreaseBy(BigDecimal^ y) {
-		mpfr_add(value, value, y->value, MPFR_RNDN);
-		return this;
-	}
-
-	BigDecimal^ BigDecimal::DecreaseBy(BigDecimal^ y) {
-		mpfr_sub(value, value, y->value, MPFR_RNDN);
-		return this;
-	}
-
-	BigDecimal^ BigDecimal::MultiplyBy(BigDecimal^ y) {
-		mpfr_mul(value, value, y->value, MPFR_RNDN);
-		return this;
-	}
-
-	BigDecimal^ BigDecimal::DivideBy(BigDecimal^ y) {
-		mpfr_div(value, value, y->value, MPFR_RNDN);
-		return this;
-	}
-#pragma endregion
-#pragma region Logarithms
-
-	BigDecimal^ BigDecimal::Log2() {
-		mpfr_log2(value, value, MPFR_RNDN);
-		return this;
-	}
-
-	BigDecimal^ BigDecimal::Log10() {
-		mpfr_log10(value, value, MPFR_RNDN);
-		return this;
-	}
-
-	BigDecimal^ BigDecimal::Ln() {
-		mpfr_log(value, value, MPFR_RNDN);
-		return this;
-	}
-
 #pragma endregion
 #pragma region ToString
 	String^ BigDecimal::ToString(int base, String^ format, IFormatProvider^ provider) {

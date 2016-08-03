@@ -14,7 +14,7 @@ namespace mpfrNET.TestApp
 			{
 				var dec = new BigDecimal(2.1, 200);
 				//var dec = BigDecimal.NegativeInfinity;
-				dec.IncreaseBy(1.2);
+				dec.Add(1.2);
 				Console.WriteLine(dec.ToString());
 				//var mpfr = new Mpfr();
 				//mpfr.Print();
