@@ -81,15 +81,19 @@ namespace System::ArbitraryPrecision
 		/// The precision of the underlying number in . 
 		/// </summary>
 		property UInt64 Precision { UInt64 get(); void set(UInt64); }
+		BigDecimal^ SetPrecision(UInt64 precision) { Precision = precision; return this; }
 
-		static BigDecimal^ operator +(BigDecimal^ x, BigDecimal^ y);
-		static BigDecimal^ operator -(BigDecimal^ x, BigDecimal^ y);
-		static BigDecimal^ operator *(BigDecimal^ x, BigDecimal^ y);
-		static BigDecimal^ operator /(BigDecimal^ x, BigDecimal^ y);
-		static BigDecimal^ operator ++(BigDecimal^ x);
-		static BigDecimal^ operator --(BigDecimal^ x);
+		static BigDecimal^ operator +(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Add(y); }
+		static BigDecimal^ operator -(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Sub(y); }
+		static BigDecimal^ operator *(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Mul(y); }
+		static BigDecimal^ operator /(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Div(y); }
+		static BigDecimal^ operator ++(BigDecimal^ x) { return LValue(x)->Add(1); }
+		static BigDecimal^ operator --(BigDecimal^ x) { return LValue(x)->Sub(1); }
 
-#pragma region Set Constants
+#pragma region Value Setters
+
+		BigDecimal^ Set(BigDecimal^ y) { mpfr_set(value, y->value, MPFR_RNDN); return this; }
+		BigDecimal^ Swap(BigDecimal^ y) { mpfr_swap(value, y->value); return this; }
 
 		BigDecimal^ SetNaN() { mpfr_set_nan(value); return this; }
 		BigDecimal^ SetInf() { return SetInfPositive(); }
@@ -179,7 +183,9 @@ namespace System::ArbitraryPrecision
 	protected:
 		BigDecimal() {};
 
-		static BigDecimal^ Combine(BigDecimal^ x, BigDecimal^ y);
+		virtual BigDecimal^ CombinePrecision(BigDecimal^ y) { return SetPrecision(Math::Max(Precision, y->Precision)); }
+		static BigDecimal^ LValue(BigDecimal^ x) { return Instance->Set(x); }
+		static BigDecimal^ LValue(BigDecimal^ x, BigDecimal^ y) { return Instance->CombinePrecision(y)->Set(y); }
 
 		bool isDisposed = false;
 		property mpfr_ptr value { mpfr_ptr get(); }

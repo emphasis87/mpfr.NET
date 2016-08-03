@@ -84,49 +84,11 @@ namespace System::ArbitraryPrecision {
 	}
 #pragma endregion
 
-	BigDecimal^ BigDecimal::Combine(BigDecimal^ x, BigDecimal^ y) {
-		int precision = Math::Max(x->Precision, y->Precision);
-		BigDecimal^ result = gcnew BigDecimal();
-		result->Precision = precision;
-		return result;
-	}
 #pragma region Binary Operators
 
-	BigDecimal^ BigDecimal::operator+(BigDecimal^ x, BigDecimal^ y) {
-		BigDecimal^ result = Combine(x, y);
-		mpfr_add(result->value, x->value, y->value, MPFR_RNDN);
-		return result;
-	}
-
-	BigDecimal^ BigDecimal::operator-(BigDecimal^ x, BigDecimal^ y) {
-		BigDecimal^ result = Combine(x, y);
-		mpfr_sub(result->value, x->value, y->value, MPFR_RNDN);
-		return result;
-	}
-
-	BigDecimal^ BigDecimal::operator*(BigDecimal^ x, BigDecimal^ y) {
-		BigDecimal^ result = Combine(x, y);
-		mpfr_mul(result->value, x->value, y->value, MPFR_RNDN);
-		return result;
-	}
-
-	BigDecimal^ BigDecimal::operator/(BigDecimal^ x, BigDecimal^ y) {
-		BigDecimal^ result = Combine(x, y);
-		mpfr_div(result->value, x->value, y->value, MPFR_RNDN);
-		return result;
-	}
 #pragma endregion
 #pragma region Unary Operators
 
-	BigDecimal^ BigDecimal::operator++(BigDecimal^ x) {
-		mpfr_add_ui(x->value, x->value, +1, MPFR_RNDN);
-		return x;
-	}
-
-	BigDecimal^ BigDecimal::operator--(BigDecimal^ x) {
-		mpfr_add_si(x->value, x->value, -1, MPFR_RNDN);
-		return x;
-	}
 #pragma endregion
 #pragma region ToString
 	String^ BigDecimal::ToString(int base, String^ format, IFormatProvider^ provider) {
