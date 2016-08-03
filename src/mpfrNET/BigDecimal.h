@@ -10,19 +10,46 @@ namespace System::ArbitraryPrecision
 	public ref class BigDecimal : IFormattable
 	{
 	public:
-		BigDecimal(Byte value, int precisionBits);
-		BigDecimal(SByte value, int precisionBits);
-		BigDecimal(Int16 value, int precisionBits) : BigDecimal((Int64)value, precisionBits) {};
-		BigDecimal(Int32 value, int precisionBits) : BigDecimal((Int64)value, precisionBits) {};
-		BigDecimal(Int64 value, int precisionBits);
-		BigDecimal(UInt16 value, int precisionBits) : BigDecimal((UInt64)value, precisionBits) {};
-		BigDecimal(UInt32 value, int precisionBits) : BigDecimal((UInt64)value, precisionBits) {};
-		BigDecimal(UInt64 value, int precisionBits);
-		BigDecimal(Single value, int precisionBits);
-		BigDecimal(Double value, int precisionBits);
-		BigDecimal(Decimal value, int precisionBits) : BigDecimal(value.ToString(), precisionBits) {};
-		BigDecimal(String^ value, int precisionBits) : BigDecimal(value, 10, precisionBits) {};
-		BigDecimal(String^ value, int base, int precisionBits);
+
+		BigDecimal(SByte value, UInt64 precision) : BigDecimal((Int64)value, precision) {};
+		BigDecimal(Int16 value, UInt64 precision) : BigDecimal((Int64)value, precision) {};
+		BigDecimal(Int32 value, UInt64 precision) : BigDecimal((Int64)value, precision) {};
+		BigDecimal(Int64 value, UInt64 precision);
+		BigDecimal(Byte value, UInt64 precision) : BigDecimal((UInt64)value, precision) {};
+		BigDecimal(UInt16 value, UInt64 precision) : BigDecimal((UInt64)value, precision) {};
+		BigDecimal(UInt32 value, UInt64 precision) : BigDecimal((UInt64)value, precision) {};
+		BigDecimal(UInt64 value, UInt64 precision);
+		BigDecimal(Single value, UInt64 precision);
+		BigDecimal(Double value, UInt64 precision);
+		BigDecimal(Decimal value, UInt64 precision) : BigDecimal(value.ToString(), precision) {};
+		BigDecimal(String^ value, UInt64 precision) : BigDecimal(value, 10, precision) {};
+		BigDecimal(String^ value, int base, UInt64 precision);
+
+		BigDecimal(SByte value) : BigDecimal((Int64)value, DefaultPrecision) {};
+		BigDecimal(Int16 value) : BigDecimal((Int64)value, DefaultPrecision) {};
+		BigDecimal(Int32 value) : BigDecimal((Int64)value, DefaultPrecision) {};
+		BigDecimal(Int64 value) : BigDecimal(value, DefaultPrecision) {};
+		BigDecimal(Byte value) : BigDecimal((UInt64)value, DefaultPrecision) {};
+		BigDecimal(UInt16 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
+		BigDecimal(UInt32 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
+		BigDecimal(UInt64 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
+		BigDecimal(Single value) : BigDecimal(value, DefaultPrecision) {};
+		BigDecimal(Double value) : BigDecimal(value, DefaultPrecision) {};
+		BigDecimal(Decimal value) : BigDecimal(value, DefaultPrecision) {};
+		BigDecimal(String^ value) : BigDecimal(value, DefaultPrecision) {};
+		BigDecimal(String^ value, int base) : BigDecimal(value, base, DefaultPrecision) {};
+
+		static operator BigDecimal ^ (Byte x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (SByte x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (Int16 x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (Int32 x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (Int64 x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (UInt16 x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (UInt32 x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (UInt64 x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (Single x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (Double x) { return gcnew BigDecimal(x); }
+		static operator BigDecimal ^ (Decimal x) { return gcnew BigDecimal(x); }
 
 		virtual ~BigDecimal();
 		!BigDecimal();
@@ -33,22 +60,24 @@ namespace System::ArbitraryPrecision
 		static property BigDecimal^ PositiveZero { BigDecimal^ get(); }
 		static property BigDecimal^ NegativeZero { BigDecimal^ get(); }
 
+		static property UInt64 DefaultPrecision { UInt64 get(); void set(UInt64); }
+
 		/// <summary>
-		/// The precision of the underlying number in bits. 
+		/// The precision of the underlying number in . 
 		/// </summary>
-		property int PrecisionBits { int get(); void set(int); }
+		property UInt64 Precision { UInt64 get(); void set(UInt64); }
 
-		//BigDecimal^ operator -(BigDecimal^ y);
 		static BigDecimal^ operator +(BigDecimal^ x, BigDecimal^ y);
-		/*BigDecimal^ operator *(BigDecimal^ y);
-		BigDecimal^ operator /(BigDecimal^ y);
-		BigDecimal^ operator ++(int i);
-		BigDecimal^ operator --(int i);
+		static BigDecimal^ operator -(BigDecimal^ x, BigDecimal^ y);
+		static BigDecimal^ operator *(BigDecimal^ x, BigDecimal^ y);
+		static BigDecimal^ operator /(BigDecimal^ x, BigDecimal^ y);
+		static BigDecimal^ operator ++(BigDecimal^ x);
+		static BigDecimal^ operator --(BigDecimal^ x);
 
-		BigDecimal Decrease(BigDecimal y);
-		BigDecimal Increase(BigDecimal y);
-		BigDecimal Multiply(BigDecimal y);
-		BigDecimal Divide(BigDecimal y);*/
+		BigDecimal^ DecreaseBy(BigDecimal^ y);
+		BigDecimal^ IncreaseBy(BigDecimal^ y);
+		BigDecimal^ MultiplyBy(BigDecimal^ y);
+		BigDecimal^ DivideBy(BigDecimal^ y);
 
 		BigDecimal^ Log2();
 		BigDecimal^ Log10();
@@ -63,23 +92,16 @@ namespace System::ArbitraryPrecision
 		virtual String^ ToString(int base, IFormatProvider^ provider) { return ToString(base, nullptr, provider); }
 		virtual String^ ToString(int base, String^ format, IFormatProvider^ provider);
 	protected:
-		/// <summary>
-		/// A number with an arbitrary precision.
-		/// </summary>
-		BigDecimal();
-
-		/// <summary>
-		/// A number with an arbitrary precision.
-		/// </summary>
-		/// <param name="precisionBits">The precision of the underlying number in bits.</param>
-		BigDecimal(int precisionBits);
+		BigDecimal() {};
 
 		static BigDecimal^ Combine(BigDecimal^ x, BigDecimal^ y);
 
 		bool isDisposed = false;
-		mpfr_ptr value;
+		property mpfr_ptr value { mpfr_ptr get(); }
 	private:
-		int _precisionBits;
-		bool _hasValue = false;
+		static int _defaultPrecision = 53;
+
+		int _precision = DefaultPrecision;
+		mpfr_ptr _value;
 	};
 }

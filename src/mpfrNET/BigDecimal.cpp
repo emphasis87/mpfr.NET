@@ -7,78 +7,83 @@ using namespace System::Runtime::InteropServices;
 
 namespace System::ArbitraryPrecision {
 
+#pragma region DefaultPrecision
+
+	UInt64 BigDecimal::DefaultPrecision::get() {
+		return _defaultPrecision;
+	}
+	void BigDecimal::DefaultPrecision::set(UInt64 precision) {
+		_defaultPrecision = precision;
+		mpfr_set_default_prec(precision);
+	}
+#pragma endregion
 #pragma region Precision
 
-	int BigDecimal::PrecisionBits::get() {
-		return _precisionBits;
+	UInt64 BigDecimal::Precision::get() {
+		return _precision;
 	}
-	void BigDecimal::PrecisionBits::set(int precisionBits) {
-		_precisionBits = precisionBits;
-		mpfr_set_prec(value, precisionBits);
+	void BigDecimal::Precision::set(UInt64 precision) {
+		if (_precision != precision) {
+			_precision = precision;
+			if (_value != nullptr)
+				mpfr_set_prec(value, precision);
+		}
+	}
+#pragma endregion
+#pragma region value
+	mpfr_ptr BigDecimal::value::get() {
+		if (_value == nullptr) {
+			_value = new mpfr_t;
+			mpfr_init2(_value, Precision);
+		}
+		return _value;
 	}
 #pragma endregion
 
 #pragma region Public Constructors
 
-	BigDecimal::BigDecimal(Byte value, int precisionBits) : BigDecimal(precisionBits) {
-		mpfr_set_ui(this->value, value, MPFR_RNDN);
-	}
-	BigDecimal::BigDecimal(SByte value, int precisionBits) : BigDecimal(precisionBits) {
+	BigDecimal::BigDecimal(Int64 value, UInt64 precision) {
+		Precision = precision;
 		mpfr_set_si(this->value, value, MPFR_RNDN);
 	}
-	BigDecimal::BigDecimal(Int64 value, int precisionBits) : BigDecimal(precisionBits) {
-		mpfr_set_si(this->value, value, MPFR_RNDN);
-	}
-	BigDecimal::BigDecimal(UInt64 value, int precisionBits) : BigDecimal(precisionBits) {
+	BigDecimal::BigDecimal(UInt64 value, UInt64 precision) {
+		Precision = precision;
 		mpfr_set_ui(this->value, value, MPFR_RNDN);
 	}
-	BigDecimal::BigDecimal(Single value, int precisionBits) : BigDecimal(precisionBits) {
+	BigDecimal::BigDecimal(Single value, UInt64 precision) {
+		Precision = precision;
 		mpfr_set_flt(this->value, value, MPFR_RNDN);
 	}
-	BigDecimal::BigDecimal(Double value, int precisionBits) : BigDecimal(precisionBits) {
+	BigDecimal::BigDecimal(Double value, UInt64 precision) {
+		Precision = precision;
 		mpfr_set_d(this->value, value, MPFR_RNDN);
 	}
-	BigDecimal::BigDecimal(String^ value, int base, int precisionBits) : BigDecimal(precisionBits) {
+	BigDecimal::BigDecimal(String^ value, int base, UInt64 precision) {
+		Precision = precision;
 		char* cstr = (char *)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(value).ToPointer();
 		mpfr_set_str(this->value, cstr, base, MPFR_RNDN);
 		Marshal::FreeHGlobal((IntPtr)cstr);
-	}
-#pragma endregion
-#pragma region NonPublic Constructors
-
-	BigDecimal::BigDecimal()
-	{
-		value = new mpfr_t;
-		mpfr_init(value);
-	}
-
-	BigDecimal::BigDecimal(int precisionBits) : BigDecimal()
-	{
-		value = new mpfr_t;
-		mpfr_init2(value, precisionBits);
-		_precisionBits = precisionBits;
 	}
 #pragma endregion
 #pragma region Destructor & Finalizer
 
 	BigDecimal::~BigDecimal()
 	{
-		if (isDisposed)
-			return;
-
-		this->!BigDecimal();
-		isDisposed = true;
+		if (!isDisposed) {
+			this->!BigDecimal();
+			isDisposed = true;
+		}
 	}
 
 	BigDecimal::!BigDecimal()
 	{
-		if (value != nullptr) {
-			mpfr_clear(value);
-			delete value;
+		if (_value != nullptr) {
+			mpfr_clear(_value);
+			delete _value;
 		}
 	}
 #pragma endregion
-#pragma region Static instances
+#pragma region Static Instances
 
 	BigDecimal^ BigDecimal::NaN::get() {
 		BigDecimal^ result = gcnew BigDecimal();
@@ -113,9 +118,12 @@ namespace System::ArbitraryPrecision {
 #pragma endregion
 
 	BigDecimal^ BigDecimal::Combine(BigDecimal^ x, BigDecimal^ y) {
-		int precision = Math::Max(x->PrecisionBits, y->PrecisionBits);
-		return gcnew BigDecimal(precision);
+		int precision = Math::Max(x->Precision, y->Precision);
+		BigDecimal^ result = gcnew BigDecimal();
+		result->Precision = precision;
+		return result;
 	}
+#pragma region Binary Operators
 
 	BigDecimal^ BigDecimal::operator+(BigDecimal^ x, BigDecimal^ y) {
 		BigDecimal^ result = Combine(x, y);
@@ -123,6 +131,58 @@ namespace System::ArbitraryPrecision {
 		return result;
 	}
 
+	BigDecimal^ BigDecimal::operator-(BigDecimal^ x, BigDecimal^ y) {
+		BigDecimal^ result = Combine(x, y);
+		mpfr_sub(result->value, x->value, y->value, MPFR_RNDN);
+		return result;
+	}
+
+	BigDecimal^ BigDecimal::operator*(BigDecimal^ x, BigDecimal^ y) {
+		BigDecimal^ result = Combine(x, y);
+		mpfr_mul(result->value, x->value, y->value, MPFR_RNDN);
+		return result;
+	}
+
+	BigDecimal^ BigDecimal::operator/(BigDecimal^ x, BigDecimal^ y) {
+		BigDecimal^ result = Combine(x, y);
+		mpfr_div(result->value, x->value, y->value, MPFR_RNDN);
+		return result;
+	}
+#pragma endregion
+#pragma region Unary Operators
+
+	BigDecimal^ BigDecimal::operator++(BigDecimal^ x) {
+		mpfr_add_ui(x->value, x->value, +1, MPFR_RNDN);
+		return x;
+	}
+
+	BigDecimal^ BigDecimal::operator--(BigDecimal^ x) {
+		mpfr_add_si(x->value, x->value, -1, MPFR_RNDN);
+		return x;
+	}
+#pragma endregion
+#pragma region Inplace Operations
+
+	BigDecimal^ BigDecimal::IncreaseBy(BigDecimal^ y) {
+		mpfr_add(value, value, y->value, MPFR_RNDN);
+		return this;
+	}
+
+	BigDecimal^ BigDecimal::DecreaseBy(BigDecimal^ y) {
+		mpfr_sub(value, value, y->value, MPFR_RNDN);
+		return this;
+	}
+
+	BigDecimal^ BigDecimal::MultiplyBy(BigDecimal^ y) {
+		mpfr_mul(value, value, y->value, MPFR_RNDN);
+		return this;
+	}
+
+	BigDecimal^ BigDecimal::DivideBy(BigDecimal^ y) {
+		mpfr_div(value, value, y->value, MPFR_RNDN);
+		return this;
+	}
+#pragma endregion
 #pragma region Logarithms
 
 	BigDecimal^ BigDecimal::Log2() {
