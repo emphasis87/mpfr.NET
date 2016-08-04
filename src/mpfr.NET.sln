@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mpfrNET", "mpfrNET\mpfrNET.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpfrNET.TestApp", "mpfrNET.TestApp\mpfrNET.TestApp.csproj", "{C7130BCB-AB13-43C5-B29F-2A460465F1C9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "mpfrNET.Tests", "mpfrNET.Tests\mpfrNET.Tests.csproj", "{1C6DE434-819C-4358-B175-B7760270D11A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,18 @@ Global
 		{C7130BCB-AB13-43C5-B29F-2A460465F1C9}.Release|x64.Build.0 = Release|Any CPU
 		{C7130BCB-AB13-43C5-B29F-2A460465F1C9}.Release|x86.ActiveCfg = Release|Any CPU
 		{C7130BCB-AB13-43C5-B29F-2A460465F1C9}.Release|x86.Build.0 = Release|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Debug|x64.Build.0 = Debug|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Debug|x86.Build.0 = Debug|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Release|x64.ActiveCfg = Release|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Release|x64.Build.0 = Release|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Release|x86.ActiveCfg = Release|Any CPU
+		{1C6DE434-819C-4358-B175-B7760270D11A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
