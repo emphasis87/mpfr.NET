@@ -9,12 +9,12 @@ namespace System::ArbitraryPrecision {
 
 #pragma region DefaultRounding
 
-	Rounding BigDecimal::DefaultRounding::get() {
+	Rounding^ BigDecimal::DefaultRounding::get() {
 		return _defaultRounding;
 	}
-	void BigDecimal::DefaultRounding::set(Rounding rounding) {
+	void BigDecimal::DefaultRounding::set(Rounding^ rounding) {
 		_defaultRounding = rounding;
-		mpfr_set_default_rounding_mode((mpfr_rnd_t)rounding);
+		mpfr_set_default_rounding_mode(rounding);
 	}
 #pragma endregion
 #pragma region DefaultPrecision

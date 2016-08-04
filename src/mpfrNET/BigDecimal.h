@@ -80,7 +80,7 @@ namespace System::ArbitraryPrecision
 #pragma endregion
 
 		static property UInt64 DefaultPrecision { UInt64 get(); void set(UInt64); }
-		static property Rounding DefaultRounding { Rounding get(); void set(Rounding);}
+		static property Rounding^ DefaultRounding { Rounding^ get(); void set(Rounding^);}
 
 		/// <summary>
 		/// The precision of the underlying number in bits. 
@@ -174,7 +174,7 @@ namespace System::ArbitraryPrecision
 		/// <summary>
 		/// Set the value to the natural logarithm of 2 constant.
 		/// </summary>
-		BigDecimal^ SetLn2(Rounding rounding) { mpfr_const_log2(value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ SetLn2(Rounding^ rounding) { mpfr_const_log2(value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the Pi constant.
@@ -184,7 +184,7 @@ namespace System::ArbitraryPrecision
 		/// <summary>
 		/// Set the value to the Pi constant.
 		/// </summary>
-		BigDecimal^ SetPi(Rounding rounding) { mpfr_const_pi(value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ SetPi(Rounding^ rounding) { mpfr_const_pi(value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the Euler's constant.
@@ -194,7 +194,7 @@ namespace System::ArbitraryPrecision
 		/// <summary>
 		/// Set the value to the Euler's constant.
 		/// </summary>
-		BigDecimal^ SetEuler(Rounding rounding) { mpfr_const_euler(value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ SetEuler(Rounding^ rounding) { mpfr_const_euler(value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the Catalan's constant.
@@ -204,7 +204,7 @@ namespace System::ArbitraryPrecision
 		/// <summary>
 		/// Set the value to the Catalan's constant.
 		/// </summary>
-		BigDecimal^ SetCatalan(Rounding rounding) { mpfr_const_catalan(value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ SetCatalan(Rounding^ rounding) { mpfr_const_catalan(value, (mpfr_rnd_t)rounding); return this; }
 #pragma endregion
 
 		/// <summary>
@@ -217,7 +217,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to that of <paramref name="y"/>.
 		/// </summary>
 		/// <param name="y">The value to set</param>
-		BigDecimal^ Set(BigDecimal^ y, Rounding rounding) { mpfr_set(value, y->value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Set(BigDecimal^ y, Rounding^ rounding) { mpfr_set(value, y->value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Swap the current instance and <paramref name="y"/> inplace.
@@ -244,7 +244,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the current value added by <paramref name="y"/> using <paramref name="rounding"/>.
 		/// </summary>
 		/// <param name="y">The value to add</param>
-		BigDecimal^ Add(BigDecimal^ y, Rounding rounding) { mpfr_add(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Add(BigDecimal^ y, Rounding^ rounding) { mpfr_add(value, value, y->value, rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the current value subtracted by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
@@ -256,7 +256,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the current value subtracted by <paramref name="y"/> using <paramref name="rounding"/>.
 		/// </summary>
 		/// <param name="y">The value to subtract</param>
-		BigDecimal^ Sub(BigDecimal^ y, Rounding rounding) { mpfr_sub(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Sub(BigDecimal^ y, Rounding^ rounding) { mpfr_sub(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the current value multiplied by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
@@ -268,7 +268,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the current value multiplied by <paramref name="y"/> using <paramref name="rounding"/>.
 		/// </summary>
 		/// <param name="y">The value to multiply by</param>
-		BigDecimal^ Mul(BigDecimal^ y, Rounding rounding) { mpfr_mul(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Mul(BigDecimal^ y, Rounding^ rounding) { mpfr_mul(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the current value divided by <paramref name="y"/>.
@@ -280,7 +280,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the current value divided by <paramref name="y"/>.
 		/// </summary>
 		/// <param name="y">The value to divide by</param>
-		BigDecimal^ Div(BigDecimal^ y, Rounding rounding) { mpfr_div(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Div(BigDecimal^ y, Rounding^ rounding) { mpfr_div(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
 #pragma endregion
 #pragma region Comparison Functions
 		/// <summary>
@@ -412,7 +412,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the natural logarithm of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Natural_logarithm">Natural_logarithm</a> on wiki.
 		/// </summary>
-		BigDecimal^ Ln(Rounding rounding) { mpfr_log(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Ln(Rounding^ rounding) { mpfr_log(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the binary logarithm of the current value using the <see cref="DefaultRounding"/>.
@@ -424,7 +424,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the binary logarithm of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Binary_logarithm">Binary_logarithm</a> on wiki.
 		/// </summary>
-		BigDecimal^ Log2(Rounding rounding) { mpfr_log2(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Log2(Rounding^ rounding) { mpfr_log2(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the decadic logarithm of the current value using the <see cref="DefaultRounding"/>.
@@ -436,7 +436,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the decadic logarithm of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Common_logarithm">Common_logarithm</a> on wiki.
 		/// </summary>
-		BigDecimal^ Log10(Rounding rounding) { mpfr_log10(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Log10(Rounding^ rounding) { mpfr_log10(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to exponential of the current value using the <see cref="DefaultRounding"/>.
@@ -448,7 +448,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to exponential of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Exponential_function">Exponential_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Exp(Rounding rounding) { mpfr_exp(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Exp(Rounding^ rounding) { mpfr_exp(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the 2 power of the current value using the <see cref="DefaultRounding"/>.
@@ -460,7 +460,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the 2 power of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Power_function">Power_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Exp2(Rounding rounding) { mpfr_exp2(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Exp2(Rounding^ rounding) { mpfr_exp2(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the 10 power of the current value using the <see cref="DefaultRounding"/>.
@@ -472,7 +472,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the 10 power of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Power_function">Power_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Exp10(Rounding rounding) { mpfr_exp10(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Exp10(Rounding^ rounding) { mpfr_exp10(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the sine of the current value using the <see cref="DefaultRounding"/>.
@@ -484,7 +484,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the sine of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Sine">Sine</a> on wiki.
 		/// </summary>
-		BigDecimal^ Sin(Rounding rounding) { mpfr_sin(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Sin(Rounding^ rounding) { mpfr_sin(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the cosine of the current value using the <see cref="DefaultRounding"/>.
@@ -496,7 +496,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the cosine of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Cosine">Cosine</a> on wiki.
 		/// </summary>
-		BigDecimal^ Cos(Rounding rounding) { mpfr_cos(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Cos(Rounding^ rounding) { mpfr_cos(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the tangent of the current value using the <see cref="DefaultRounding"/>.
@@ -508,7 +508,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the tangent of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Tangent_function">Tangent_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Tan(Rounding rounding) { mpfr_tan(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Tan(Rounding^ rounding) { mpfr_tan(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the secant of the current value using the <see cref="DefaultRounding"/>.
@@ -520,7 +520,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the secant of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Secant_function">Secant_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Sec(Rounding rounding) { mpfr_sec(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Sec(Rounding^ rounding) { mpfr_sec(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the cosecant of the current value using the <see cref="DefaultRounding"/>.
@@ -532,7 +532,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the cosecant of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Cosecant">Cosecant</a> on wiki.
 		/// </summary>
-		BigDecimal^ Csc(Rounding rounding) { mpfr_csc(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Csc(Rounding^ rounding) { mpfr_csc(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the cotangent of the current value using the <see cref="DefaultRounding"/>.
@@ -544,7 +544,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the cotangent of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Ctg">Ctg</a> on wiki.
 		/// </summary>
-		BigDecimal^ Cot(Rounding rounding) { mpfr_cot(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Cot(Rounding^ rounding) { mpfr_cot(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the arc-cosine of the current value using the <see cref="DefaultRounding"/>.
@@ -556,7 +556,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the arc-cosine of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Arccosine">Arccosine</a> on wiki.
 		/// </summary>
-		BigDecimal^ Acos(Rounding rounding) { mpfr_acos(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Acos(Rounding^ rounding) { mpfr_acos(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the arc-sine of the current value using the <see cref="DefaultRounding"/>.
@@ -568,7 +568,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the arc-sine of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Arcsine">Arcsine</a> on wiki.
 		/// </summary>
-		BigDecimal^ Asin(Rounding rounding) { mpfr_asin(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Asin(Rounding^ rounding) { mpfr_asin(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the arc-tangent of the current value using the <see cref="DefaultRounding"/>.
@@ -580,7 +580,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the arc-tangent of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Arctangent">Arctangent</a> on wiki.
 		/// </summary>
-		BigDecimal^ Atan(Rounding rounding) { mpfr_atan(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Atan(Rounding^ rounding) { mpfr_atan(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the arc-tangent2 of the current value using the <see cref="DefaultRounding"/>.
@@ -592,7 +592,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the arc-tangent2 of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Atan2">Atan2</a> on wiki.
 		/// </summary>
-		BigDecimal^ Atan2(BigDecimal^ y, Rounding rounding) { mpfr_atan2(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Atan2(BigDecimal^ y, Rounding^ rounding) { mpfr_atan2(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the hyperbolic cosine of the current value using the <see cref="DefaultRounding"/>.
@@ -604,7 +604,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the hyperbolic cosine of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Hyperbolic_function#Cosh">Hyperbolic_function#Cosh</a> on wiki.
 		/// </summary>
-		BigDecimal^ Cosh(Rounding rounding) { mpfr_cosh(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Cosh(Rounding^ rounding) { mpfr_cosh(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the hyperbolic sine of the current value using the <see cref="DefaultRounding"/>.
@@ -616,7 +616,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the hyperbolic sine of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Sinh">Sinh</a> on wiki.
 		/// </summary>
-		BigDecimal^ Sinh(Rounding rounding) { mpfr_sinh(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Sinh(Rounding^ rounding) { mpfr_sinh(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the hyperbolic tangent of the current value using the <see cref="DefaultRounding"/>.
@@ -628,7 +628,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the hyperbolic tangent of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Tanh">Tanh</a> on wiki.
 		/// </summary>
-		BigDecimal^ Tanh(Rounding rounding) { mpfr_tanh(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Tanh(Rounding^ rounding) { mpfr_tanh(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the hyperbolic secant of the current value using the <see cref="DefaultRounding"/>.
@@ -640,7 +640,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the hyperbolic secant of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Sech">Sech</a> on wiki.
 		/// </summary>
-		BigDecimal^ Sech(Rounding rounding) { mpfr_sech(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Sech(Rounding^ rounding) { mpfr_sech(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the hyperbolic cosecant of the current value using the <see cref="DefaultRounding"/>.
@@ -652,7 +652,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the hyperbolic cosecant of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Csch">Csch</a> on wiki.
 		/// </summary>
-		BigDecimal^ Csch(Rounding rounding) { mpfr_csch(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Csch(Rounding^ rounding) { mpfr_csch(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the hyperbolic cotangent of the current value using the <see cref="DefaultRounding"/>.
@@ -664,7 +664,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the hyperbolic cotangent of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Coth">Coth</a> on wiki.
 		/// </summary>
-		BigDecimal^ Coth(Rounding rounding) { mpfr_coth(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Coth(Rounding^ rounding) { mpfr_coth(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the inverse hyperbolic cosine of the current value using the <see cref="DefaultRounding"/>.
@@ -676,7 +676,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the inverse hyperbolic cosine of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Acosh">Acosh</a> on wiki.
 		/// </summary>
-		BigDecimal^ Acosh(Rounding rounding) { mpfr_acosh(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Acosh(Rounding^ rounding) { mpfr_acosh(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the inverse hyperbolic sine of the current value using the <see cref="DefaultRounding"/>.
@@ -688,7 +688,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the inverse hyperbolic sine of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Asinh">Asinh</a> on wiki.
 		/// </summary>
-		BigDecimal^ Asinh(Rounding rounding) { mpfr_asinh(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Asinh(Rounding^ rounding) { mpfr_asinh(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the inverse hyperbolic tangent of the current value using the <see cref="DefaultRounding"/>.
@@ -700,7 +700,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the inverse hyperbolic tangent of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Atanh">Atanh</a> on wiki.
 		/// </summary>
-		BigDecimal^ Atanh(Rounding rounding) { mpfr_atanh(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Atanh(Rounding^ rounding) { mpfr_atanh(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the factorial of the current value using the <see cref="DefaultRounding"/>.
@@ -714,7 +714,7 @@ namespace System::ArbitraryPrecision
 		/// See also <a href="http://en.wikipedia.org/wiki/Factorial">Factorial</a> on wiki.
 		/// </summary>
 		/// <param name="value">The input argument to the factorial function.</param>
-		BigDecimal^ Fact(UInt64 value, Rounding rounding) { mpfr_fac_ui(this->value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Fact(UInt64 value, Rounding^ rounding) { mpfr_fac_ui(this->value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the logarithm of one plus the current value using the <see cref="DefaultRounding"/>.
@@ -726,7 +726,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the logarithm of one plus the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Log1p">Log1p</a> on wiki.
 		/// </summary>
-		BigDecimal^ Log1p(Rounding rounding) { mpfr_log1p(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Log1p(Rounding^ rounding) { mpfr_log1p(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the exponential of the current value followed by a subtraction by one using the <see cref="DefaultRounding"/>.
@@ -738,7 +738,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the exponential of the current value followed by a subtraction by one using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Expm1">Expm1</a> on wiki.
 		/// </summary>
-		BigDecimal^ Expm1(Rounding rounding) { mpfr_expm1(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Expm1(Rounding^ rounding) { mpfr_expm1(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the exponential integral of the current value using the <see cref="DefaultRounding"/>.
@@ -750,7 +750,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the exponential integral of the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Exponential_integral">Exponential_integral</a> on wiki.
 		/// </summary>
-		BigDecimal^ Eint(Rounding rounding) { mpfr_eint(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Eint(Rounding^ rounding) { mpfr_eint(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the real part of the dilogarithm of the current value using the <see cref="DefaultRounding"/>.
@@ -762,7 +762,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the real part of the dilogarithm of the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Li2">Li2</a> on wiki.
 		/// </summary>
-		BigDecimal^ Li2(Rounding rounding) { mpfr_li2(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Li2(Rounding^ rounding) { mpfr_li2(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the value of the Gamma function on the current value using the <see cref="DefaultRounding"/>.
@@ -774,7 +774,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the value of the Gamma function on the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Gamma_function">Gamma_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Gamma(Rounding rounding) { mpfr_gamma(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Gamma(Rounding^ rounding) { mpfr_gamma(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the value of the logarithm of the Gamma function on the current value using the <see cref="DefaultRounding"/>.
@@ -786,7 +786,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the value of the logarithm of the Gamma function on the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Gamma_function">Power_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ LnGamma(Rounding rounding) { mpfr_lngamma(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ LnGamma(Rounding^ rounding) { mpfr_lngamma(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the value of the logarithm of the absolute value of the Gamma function on the current value using the <see cref="DefaultRounding"/>.
@@ -800,7 +800,7 @@ namespace System::ArbitraryPrecision
 		/// See also <a href="http://en.wikipedia.org/wiki/Gamma_function">Gamma_function</a> on wiki.
 		/// </summary>
 		/// <param name="sign">The sign of a value of the Gamma function on the current value</param> 
-		BigDecimal^ LGamma([Out] int% sign, Rounding rounding) {
+		BigDecimal^ LGamma([Out] int% sign, Rounding^ rounding) {
 			int sgn = 0;
 			mpfr_lgamma(value, &sgn, value, (mpfr_rnd_t)rounding); 
 			sign = sgn;
@@ -817,7 +817,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the value of the Digamma function on the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Digamma_function">Digamma_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Digamma(Rounding rounding) { mpfr_digamma(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Digamma(Rounding^ rounding) { mpfr_digamma(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the value of Riemann Zeta function on the current value using the <see cref="DefaultRounding"/>.
@@ -829,7 +829,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the value of Riemann Zeta function on the current value using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Riemann_zeta_function">Riemann_zeta_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Zeta(Rounding rounding) { mpfr_zeta(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Zeta(Rounding^ rounding) { mpfr_zeta(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the value of Riemann Zeta function on <paramref name="value"/> using the <see cref="DefaultRounding"/>.
@@ -841,7 +841,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the value of Riemann Zeta function on <paramref name="value"/> using <paramref name="rounding"/>.
 		/// See also <a href="http://en.wikipedia.org/wiki/Riemann_zeta_function">Riemann_zeta_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Zeta(UInt64 value, Rounding rounding) { mpfr_zeta_ui(this->value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Zeta(UInt64 value, Rounding^ rounding) { mpfr_zeta_ui(this->value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the error function on the current value using the <see cref="DefaultRounding"/>.
@@ -853,7 +853,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the error function on the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Error_function">Error_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Erf(Rounding rounding) { mpfr_erf(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Erf(Rounding^ rounding) { mpfr_erf(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the complementary errof function on the current value using the <see cref="DefaultRounding"/>.
@@ -865,7 +865,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the complementary errof function on the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Error_function">Error_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Erfc(Rounding rounding) { mpfr_erfc(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Erfc(Rounding^ rounding) { mpfr_erfc(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the first kind Bessel function of order 0 on the current value using the <see cref="DefaultRounding"/>.
@@ -877,7 +877,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the first kind Bessel function of order 0 on the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Bessel_function">Bessel_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ J0(Rounding rounding) { mpfr_j0(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ J0(Rounding^ rounding) { mpfr_j0(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the first kind Bessel function of order 1 on the current value using the <see cref="DefaultRounding"/>.
@@ -889,7 +889,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the first kind Bessel function of order 1 on the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Bessel_function">Bessel_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ J1(Rounding rounding) { mpfr_j1(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ J1(Rounding^ rounding) { mpfr_j1(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the first kind Bessel function of order <paramref name="n"/> on the current value using the <see cref="DefaultRounding"/>.
@@ -903,7 +903,7 @@ namespace System::ArbitraryPrecision
 		/// See also <a href="https://en.wikipedia.org/wiki/Bessel_function">Bessel_function</a> on wiki.
 		/// </summary>
 		/// <param name="n">The order of the first kind Bessel function to compute</param>
-		BigDecimal^ Jn(Int64 n, Rounding rounding) { mpfr_jn(value, n, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Jn(Int64 n, Rounding^ rounding) { mpfr_jn(value, n, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the second kind Bessel function of order 0 on the current value using the <see cref="DefaultRounding"/>.
@@ -915,7 +915,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the second kind Bessel function of order 0 on the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Bessel_function">Bessel_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Y0(Rounding rounding) { mpfr_y0(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Y0(Rounding^ rounding) { mpfr_y0(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the second kind Bessel function of order 1 on the current value using the <see cref="DefaultRounding"/>.
@@ -927,7 +927,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the second kind Bessel function of order 1 on the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Bessel_function">Bessel_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Y1(Rounding rounding) { mpfr_y1(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Y1(Rounding^ rounding) { mpfr_y1(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the second kind Bessel function of order <paramref name="n"/> on the current value using the <see cref="DefaultRounding"/>.
@@ -941,7 +941,7 @@ namespace System::ArbitraryPrecision
 		/// See also <a href="https://en.wikipedia.org/wiki/Bessel_function">Bessel_function</a> on wiki.
 		/// </summary>
 		/// <param name="n">The order of the second kind Bessel function to compute</param>
-		BigDecimal^ Yn(Int64 n, Rounding rounding) { mpfr_yn(value, n, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Yn(Int64 n, Rounding^ rounding) { mpfr_yn(value, n, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the arithmetic-geometric mean of the current value and <paramref name="y"/> using the <see cref="DefaultRounding"/>.
@@ -953,7 +953,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the arithmetic-geometric mean of the current value and <paramref name="y"/> using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Arithmetic–geometric_mean">Arithmetic–geometric_mean</a> on wiki.
 		/// </summary>
-		BigDecimal^ Agm(BigDecimal^ y, Rounding rounding) { mpfr_agm(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Agm(BigDecimal^ y, Rounding^ rounding) { mpfr_agm(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the Euclidean norm of the current value and <paramref name="y"/> using the <see cref="DefaultRounding"/>.
@@ -965,7 +965,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the Euclidean norm of the current value and <paramref name="y"/> using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Euclidean_norm">Euclidean_norm</a> on wiki.
 		/// </summary>
-		BigDecimal^ Hypot(BigDecimal^ y, Rounding rounding) { mpfr_hypot(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Hypot(BigDecimal^ y, Rounding^ rounding) { mpfr_hypot(value, value, y->value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Set the value to the Airy function Ai on the current value using the <see cref="DefaultRounding"/> using the <see cref="DefaultRounding"/>.
@@ -977,7 +977,7 @@ namespace System::ArbitraryPrecision
 		/// Set the value to the Airy function Ai on the current value using <paramref name="rounding"/>.
 		/// See also <a href="https://en.wikipedia.org/wiki/Airy_function">Airy_function</a> on wiki.
 		/// </summary>
-		BigDecimal^ Ai(Rounding rounding) { mpfr_ai(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Ai(Rounding^ rounding) { mpfr_ai(value, value, (mpfr_rnd_t)rounding); return this; }
 #pragma endregion
 #pragma region Integer and Remainder Related Functions
 
@@ -991,7 +991,7 @@ namespace System::ArbitraryPrecision
 		/// Round the current value using <paramref name="rounding"/>.
 		/// </summary>
 		/// <param name="y">The value to divide by</param>
-		BigDecimal^ Round(Rounding rounding) { mpfr_rint(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Round(Rounding^ rounding) { mpfr_rint(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Round to the nearest representable value using away from zero rounding.
@@ -1009,7 +1009,7 @@ namespace System::ArbitraryPrecision
 		/// Round to the next higher or equal representable value using <paramref name="rounding"/>.
 		/// </summary>
 		/// <param name="y">The value to divide by</param>
-		BigDecimal^ Ceil(Rounding rounding) { mpfr_rint_ceil(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Ceil(Rounding^ rounding) { mpfr_rint_ceil(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Round to the next higher or equal representable value using away from zero rounding.
@@ -1027,7 +1027,7 @@ namespace System::ArbitraryPrecision
 		/// Round to the next lower or equal representable value using <paramref name="rounding"/>.
 		/// </summary>
 		/// <param name="y">The value to divide by</param>
-		BigDecimal^ Floor(Rounding rounding) { mpfr_rint_floor(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Floor(Rounding^ rounding) { mpfr_rint_floor(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Round to the next lower or equal representable value using away from zero rounding.
@@ -1045,7 +1045,7 @@ namespace System::ArbitraryPrecision
 		/// Round the next higher or equal representable value using <paramref name="rounding"/>.
 		/// </summary>
 		/// <param name="y">The value to divide by</param>
-		BigDecimal^ Trunc(Rounding rounding) { mpfr_rint_trunc(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Trunc(Rounding^ rounding) { mpfr_rint_trunc(value, value, (mpfr_rnd_t)rounding); return this; }
 		
 		/// <summary>
 		/// Round the next higher or equal representable value using away from zero rounding.
@@ -1061,7 +1061,7 @@ namespace System::ArbitraryPrecision
 		/// <summary>
 		/// Set the value to the fractional part of the current value using <paramref name="rounding"/>.
 		/// </summary>
-		BigDecimal^ Frac(Rounding rounding) { mpfr_frac(value, value, (mpfr_rnd_t)rounding); return this; }
+		BigDecimal^ Frac(Rounding^ rounding) { mpfr_frac(value, value, (mpfr_rnd_t)rounding); return this; }
 
 		/// <summary>
 		/// Fill simultaneously <paramref name="fraction"/> with the fractional part and
@@ -1075,7 +1075,7 @@ namespace System::ArbitraryPrecision
 		/// <paramref name="integral"/> with the integral part of the current value
 		/// using <paramref name="rounding"/>.
 		/// </summary>
-		BigDecimal^ Modf([Out] BigDecimal^% fraction, [Out] BigDecimal^% integral, Rounding rounding) { 
+		BigDecimal^ Modf([Out] BigDecimal^% fraction, [Out] BigDecimal^% integral, Rounding^ rounding) { 
 			fraction = Create(Precision);
 			integral = Create(Precision);
 			mpfr_modf(fraction->value, integral->value, value, (mpfr_rnd_t)rounding);
@@ -1109,7 +1109,7 @@ namespace System::ArbitraryPrecision
 		bool isDisposed = false;
 		property mpfr_ptr value { mpfr_ptr get(); }
 	private:
-		static Rounding _defaultRounding = Rounding::ToNearestTiesAwayFromZero;
+		static Rounding^ _defaultRounding = Rounding::NearestTiesToEven;
 		static int _defaultPrecision = 53;
 
 		int _precision = DefaultPrecision;
