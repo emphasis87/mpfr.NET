@@ -140,6 +140,7 @@
     <ClInclude Include="BigDecimal.h" />
     <ClInclude Include="mpfrNET.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="Rounding.h" />
     <ClInclude Include="Stdafx.h" />
   </ItemGroup>
   <ItemGroup>

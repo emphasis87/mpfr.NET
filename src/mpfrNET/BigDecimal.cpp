@@ -7,6 +7,16 @@ using namespace System::Runtime::InteropServices;
 
 namespace System::ArbitraryPrecision {
 
+#pragma region DefaultRounding
+
+	Rounding BigDecimal::DefaultRounding::get() {
+		return _defaultRounding;
+	}
+	void BigDecimal::DefaultRounding::set(Rounding rounding) {
+		_defaultRounding = rounding;
+		mpfr_set_default_rounding_mode((mpfr_rnd_t)rounding);
+	}
+#pragma endregion
 #pragma region DefaultPrecision
 
 	UInt64 BigDecimal::DefaultPrecision::get() {
@@ -40,31 +50,6 @@ namespace System::ArbitraryPrecision {
 	}
 #pragma endregion
 
-#pragma region Public Constructors
-
-	BigDecimal::BigDecimal(Int64 value, UInt64 precision) {
-		Precision = precision;
-		mpfr_set_si(this->value, value, MPFR_RNDN);
-	}
-	BigDecimal::BigDecimal(UInt64 value, UInt64 precision) {
-		Precision = precision;
-		mpfr_set_ui(this->value, value, MPFR_RNDN);
-	}
-	BigDecimal::BigDecimal(Single value, UInt64 precision) {
-		Precision = precision;
-		mpfr_set_flt(this->value, value, MPFR_RNDN);
-	}
-	BigDecimal::BigDecimal(Double value, UInt64 precision) {
-		Precision = precision;
-		mpfr_set_d(this->value, value, MPFR_RNDN);
-	}
-	BigDecimal::BigDecimal(String^ value, int base, UInt64 precision) {
-		Precision = precision;
-		char* cstr = (char *)System::Runtime::InteropServices::Marshal::StringToHGlobalAnsi(value).ToPointer();
-		mpfr_set_str(this->value, cstr, base, MPFR_RNDN);
-		Marshal::FreeHGlobal((IntPtr)cstr);
-	}
-#pragma endregion
 #pragma region Destructor & Finalizer
 
 	BigDecimal::~BigDecimal()
@@ -84,12 +69,6 @@ namespace System::ArbitraryPrecision {
 	}
 #pragma endregion
 
-#pragma region Binary Operators
-
-#pragma endregion
-#pragma region Unary Operators
-
-#pragma endregion
 #pragma region ToString
 	String^ BigDecimal::ToString(int base, String^ format, IFormatProvider^ provider) {
 		if (base < 2 || base > 62)
