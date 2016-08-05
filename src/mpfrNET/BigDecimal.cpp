@@ -7,69 +7,6 @@ using namespace System::Runtime::InteropServices;
 
 namespace System::ArbitraryPrecision {
 
-#pragma region DefaultRounding
-
-	Rounding^ BigDecimal::DefaultRounding::get() {
-		return _defaultRounding;
-	}
-	void BigDecimal::DefaultRounding::set(Rounding^ rounding) {
-		_defaultRounding = rounding;
-		mpfr_set_default_rounding_mode(rounding);
-	}
-#pragma endregion
-#pragma region DefaultPrecision
-
-	UInt64 BigDecimal::DefaultPrecision::get() {
-		return _defaultPrecision;
-	}
-	void BigDecimal::DefaultPrecision::set(UInt64 precision) {
-		_defaultPrecision = precision;
-		mpfr_set_default_prec(precision);
-	}
-#pragma endregion
-#pragma region Precision
-
-	UInt64 BigDecimal::Precision::get() {
-		return _precision;
-	}
-	void BigDecimal::Precision::set(UInt64 precision) {
-		if (_precision != precision) {
-			_precision = precision;
-			if (_value != nullptr)
-				mpfr_set_prec(value, precision);
-		}
-	}
-#pragma endregion
-#pragma region Value
-	mpfr_ptr BigDecimal::value::get() {
-		if (_value == nullptr) {
-			_value = new mpfr_t;
-			mpfr_init2(_value, Precision);
-		}
-		return _value;
-	}
-#pragma endregion
-
-#pragma region Destructor & Finalizer
-
-	BigDecimal::~BigDecimal()
-	{
-		if (!isDisposed) {
-			this->!BigDecimal();
-			isDisposed = true;
-		}
-	}
-
-	BigDecimal::!BigDecimal()
-	{
-		if (_value != nullptr) {
-			mpfr_clear(_value);
-			delete _value;
-		}
-	}
-#pragma endregion
-
-#pragma region ToString
 	String^ BigDecimal::ToString(int base, String^ format, IFormatProvider^ provider) {
 		if (base < 2 || base > 62)
 			throw gcnew ArgumentOutOfRangeException("base", "Only a base between 2 and 62 is allowed.");
@@ -93,5 +30,4 @@ namespace System::ArbitraryPrecision {
 
 		return result;
 	}
-#pragma endregion
 }
