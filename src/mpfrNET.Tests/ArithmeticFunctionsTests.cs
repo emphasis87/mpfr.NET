@@ -33,5 +33,25 @@ namespace mpfrNET.Tests
 
 			act.ShouldThrow<NullReferenceException>();
 		}
+
+		[Test]
+		public void Can_Sub()
+		{
+			var x1 = new BigDecimal(3.012345678901234567890123456789);
+
+			x1.Sub(new BigDecimal(1));
+
+			((double)x1).Should().Be(2.0123456789012345);
+		}
+
+		[Test]
+		public void When_passed_null_Sub_should_throw()
+		{
+			var x1 = new BigDecimal(1.1);
+
+			Action act = () => x1.Sub(null);
+
+			act.ShouldThrow<NullReferenceException>();
+		}
 	}
 }
