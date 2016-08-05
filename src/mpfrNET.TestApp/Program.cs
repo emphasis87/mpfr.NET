@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ArbitraryPrecision;
-using System.Globalization;
 
 namespace mpfrNET.TestApp
 {
@@ -8,25 +7,17 @@ namespace mpfrNET.TestApp
 	{
 		private static void Main(string[] args)
 		{
-			Console.WriteLine("test1");
-
 			try
 			{
-				var dec = new BigDecimal(2.1, 200);
-				//var dec = BigDecimal.NegativeInfinity;
-				dec.Add(1.2);
-				
-				Console.WriteLine((double)dec);
-				//var mpfr = new Mpfr();
-				//mpfr.Print();
+				var dec = new BigDecimal("2.1", 10, 300);
+				//dec.Add(new BigDecimal("1.2", 10, 100));
+
+				Console.WriteLine(dec);
 			}
 			catch (Exception ex)
 			{
 				Console.Write(ex);
 			}
-			
-			Console.WriteLine("test2");
-			Console.Read();
 		}
 	}
 }

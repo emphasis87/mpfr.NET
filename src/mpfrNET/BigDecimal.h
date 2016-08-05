@@ -1947,7 +1947,7 @@ namespace System::ArbitraryPrecision
 		/// Round to the next higher or equal representable value using away from zero rounding.
 		/// </summary>
 		/// <returns>This instance with the result</returns>
-		BigDecimal^ TruncAfz() { mpfr_ceil(value, value); return this; }
+		BigDecimal^ TruncAfz() { mpfr_trunc(value, value); return this; }
 
 		/// <summary>
 		/// Set the value to the fractional part of the current value using the <see cref="DefaultRounding"/>.
@@ -1992,7 +1992,7 @@ namespace System::ArbitraryPrecision
 		/// </summary>
 		/// <param name="y">The value for which to compute modulo for</param>
 		/// <returns>This instance with the result</returns>
-		BigDecimal^ Fmod(BigDecimal^ y) { return Hypot(y, DefaultRounding); }
+		BigDecimal^ Fmod(BigDecimal^ y) { return Fmod(y, DefaultRounding); }
 
 		/// <summary>
 		/// Set the value to <code>x % y</code> or more precisely to <code>x - n * y</code> where <code>n</code>
@@ -2278,14 +2278,14 @@ namespace System::ArbitraryPrecision
 		BigDecimal() {};
 
 		/// <summary>
-		/// Create a new instance of <see cref="BigDecimal"/> base on <paramref name="x"/>.
+		/// Create a new instance of <see cref="BigDecimal"/> based on <paramref name="x"/>.
 		/// </summary>
 		/// <param name="x">The instance which provides a value and a precision</param>
 		/// <returns>A new instance</returns>
 		static BigDecimal^ LValue(BigDecimal^ x) { return Create(x->Precision)->Set(x); }
 
 		/// <summary>
-		/// Create a new instance of <see cref="BigDecimal"/> base on <paramref name="x"/>.
+		/// Create a new instance of <see cref="BigDecimal"/> based on <paramref name="x"/>.
 		/// The value is copied from the left operand <paramref name="x"/> and the precision is set
 		/// to a combination of <paramref name="x"/> and <paramref name="y"/> using <see cref="LPrecision"/>.
 		/// </summary>
