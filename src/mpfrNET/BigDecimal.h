@@ -1234,13 +1234,13 @@ namespace System::ArbitraryPrecision
 		/// Check whether the current value is positive.
 		/// </summary>
 		/// <returns>True if the current value is positive</returns>
-		bool IsPositive() { return Sign() > 0; }
+		bool IsPositive() { return !IsNegative(); }
 
 		/// <summary>
 		/// Check whether the current value is negative.
 		/// </summary>
 		/// <returns>True if the current value is negative</returns>
-		bool IsNegative() { return Sign() < 0; }
+		bool IsNegative() { return mpfr_signbit(value) != 0; }
 
 		/// <summary>
 		/// Check whether the current value is greater than <paramref name="y"/>.

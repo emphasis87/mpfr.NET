@@ -1,5 +1,7 @@
-﻿using System.ArbitraryPrecision;
+﻿using System;
+using System.ArbitraryPrecision;
 using System.Globalization;
+using System.Threading;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -8,19 +10,37 @@ namespace mpfrNET.Tests
     public class IOFunctionsTests
     {
         [Test]
-        public void Can_create_from_string()
+        public void Can_parse_and_print_string()
         {
-            var x1 = new BigDecimal("100001.123456789876");
-            x1.ToString(CultureInfo.InvariantCulture).Should().Be("100001.123456789876");
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            
+            new BigDecimal("NaN").ToString().Should().Be("NaN");
+            new BigDecimal("+NaN").ToString().Should().Be("NaN");
+            new BigDecimal("-NaN").ToString().Should().Be("NaN");
+            new BigDecimal("Inf").ToString().Should().Be("Infinity");
+            new BigDecimal("+Inf").ToString().Should().Be("Infinity");
+            new BigDecimal("-Inf").ToString().Should().Be("-Infinity");
+            new BigDecimal("+0").ToString().Should().Be("0");
+            new BigDecimal("-0").ToString().Should().Be("-0");
+            new BigDecimal("100001.12345").ToString().Should().Be("100001.12345");
+            new BigDecimal("1.123456789").ToString().Should().Be("1.123456789");
+            new BigDecimal("0.123456789").ToString().Should().Be("0.123456789");
+            new BigDecimal("0.0000123456789").ToString().Should().Be("0.0000123456789");
+            new BigDecimal("+100001.12345").ToString().Should().Be("100001.12345");
+            new BigDecimal("+1.123456789").ToString().Should().Be("1.123456789");
+            new BigDecimal("+0.123456789").ToString().Should().Be("0.123456789");
+            new BigDecimal("+0.0000123456789").ToString().Should().Be("0.0000123456789");
+            new BigDecimal("-100001.12345").ToString().Should().Be("-100001.12345");
+            new BigDecimal("-1.123456789").ToString().Should().Be("-1.123456789");
+            new BigDecimal("-0.123456789").ToString().Should().Be("-0.123456789");
+            new BigDecimal("-0.0000123456789").ToString().Should().Be("-0.0000123456789");
 
-            var x2 = new BigDecimal("1.123456789");
-            x2.ToString(CultureInfo.InvariantCulture).Should().Be("1.123456789");
+            var str = "";
+            for (var i = 0; i < 10; i++)
+                str += "1234567890";
+            str = str + "." + str + "1234";
 
-            var x3 = new BigDecimal("0.123456789");
-            x3.ToString(CultureInfo.InvariantCulture).Should().Be("0.123456789");
-
-            var x4 = new BigDecimal("0.0000123456789");
-            x4.ToString(CultureInfo.InvariantCulture).Should().Be("0.0000123456789");
+            new BigDecimal(str, 10, (ulong)(str.Length * 4)).ToString().Should().Be(str);
         }
     }
 }
