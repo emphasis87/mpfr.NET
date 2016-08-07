@@ -42,11 +42,23 @@ namespace System::ArbitraryPrecision
 #pragma region Constructors
 
 		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(SByte value) : BigDecimal((Int64)value, DefaultPrecision) {};
+
+		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
 		/// </summary>
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		BigDecimal(SByte value, UInt64 precision) : BigDecimal((Int64)value, precision) {};
+
+		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(Int16 value) : BigDecimal((Int64)value, DefaultPrecision) {};
 
 		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
@@ -56,11 +68,23 @@ namespace System::ArbitraryPrecision
 		BigDecimal(Int16 value, UInt64 precision) : BigDecimal((Int64)value, precision) {};
 
 		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(Int32 value) : BigDecimal((Int64)value, DefaultPrecision) {};
+
+		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
 		/// </summary>
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		BigDecimal(Int32 value, UInt64 precision) : BigDecimal((Int64)value, precision) {};
+
+		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(Int64 value) : BigDecimal(value, DefaultPrecision) {};
 
 		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
@@ -70,11 +94,23 @@ namespace System::ArbitraryPrecision
 		BigDecimal(Int64 value, UInt64 precision) { SetPrecision(precision); Set(value); }
 
 		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(Byte value) : BigDecimal((UInt64)value, DefaultPrecision) {};
+
+		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
 		/// </summary>
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		BigDecimal(Byte value, UInt64 precision) : BigDecimal((UInt64)value, precision) {};
+
+		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(UInt16 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
 
 		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
@@ -84,11 +120,23 @@ namespace System::ArbitraryPrecision
 		BigDecimal(UInt16 value, UInt64 precision) : BigDecimal((UInt64)value, precision) {};
 
 		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(UInt32 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
+
+		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
 		/// </summary>
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		BigDecimal(UInt32 value, UInt64 precision) : BigDecimal((UInt64)value, precision) {};
+		
+		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(UInt64 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
 
 		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
@@ -98,11 +146,23 @@ namespace System::ArbitraryPrecision
 		BigDecimal(UInt64 value, UInt64 precision) { SetPrecision(precision); Set(value); }
 
 		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(Single value) : BigDecimal(value, DefaultPrecision) {};
+
+		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
 		/// </summary>
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		BigDecimal(Single value, UInt64 precision) { SetPrecision(precision); Set(value); }
+
+		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(Double value) : BigDecimal(value, DefaultPrecision) {};
 
 		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
@@ -112,11 +172,24 @@ namespace System::ArbitraryPrecision
 		BigDecimal(Double value, UInt64 precision) { SetPrecision(precision); Set(value); }
 
 		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(Decimal value) : BigDecimal(value, DefaultPrecision) {};
+
+		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
 		/// </summary>
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		BigDecimal(Decimal value, UInt64 precision) { SetPrecision(precision); Set(value); }
+
+		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// The <paramref name="value"/> string is expected to be in a base of 10.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		BigDecimal(String^ value) : BigDecimal(value, 10) {};
 
 		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
@@ -127,6 +200,14 @@ namespace System::ArbitraryPrecision
 		BigDecimal(String^ value, UInt64 precision) : BigDecimal(value, 10, precision) {};
 
 		/// <summary>
+		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
+		/// The <paramref name="value"/> string is expected to be in a specified <paramref name="base"/>.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		/// <param name="value">The expected base of the give value</param>
+		BigDecimal(String^ value, int base) : BigDecimal(value, base, DefaultPrecision) {};
+
+		/// <summary>
 		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
 		/// The <paramref name="value"/> string is expected to be in a specified <paramref name="base"/>.
 		/// </summary>
@@ -134,87 +215,6 @@ namespace System::ArbitraryPrecision
 		/// <param name="value">The expected base of the give value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		BigDecimal(String^ value, int base, UInt64 precision) { SetPrecision(precision); Set(value); }
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(SByte value) : BigDecimal((Int64)value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(Int16 value) : BigDecimal((Int64)value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(Int32 value) : BigDecimal((Int64)value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(Int64 value) : BigDecimal(value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(Byte value) : BigDecimal((UInt64)value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(UInt16 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(UInt32 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(UInt64 value) : BigDecimal((UInt64)value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(Single value) : BigDecimal(value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(Double value) : BigDecimal(value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(Decimal value) : BigDecimal(value, DefaultPrecision) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// The <paramref name="value"/> string is expected to be in a base of 10.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		BigDecimal(String^ value) : BigDecimal(value, 10) {};
-
-		/// <summary>
-		/// Create a new <see cref="BigDecimal"/> instance with a given <paramref name="value"/> and the <see cref="DefaultPrecision"/> in bits.
-		/// The <paramref name="value"/> string is expected to be in a specified <paramref name="base"/>.
-		/// </summary>
-		/// <param name="value">The underlying value</param>
-		/// <param name="value">The expected base of the give value</param>
-		BigDecimal(String^ value, int base) : BigDecimal(value, base, DefaultPrecision) {};
 #pragma endregion
 
 		/// <summary>
@@ -420,21 +420,41 @@ namespace System::ArbitraryPrecision
 		static property BigDecimal^ Catalan { BigDecimal^ get() { return Create()->SetCatalan(); }}
 #pragma endregion
 
-		// TODO number overloads (one less instantiation)
-
 #pragma region Arithmetic Operators
 		static BigDecimal^ operator +(BigDecimal^ x) { return LValue(x); }
 		static BigDecimal^ operator -(BigDecimal^ x) { return LValue(x)->Neg(); }
 
 		static BigDecimal^ operator +(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Add(y); }
-		static BigDecimal^ operator -(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Sub(y); }
-		static BigDecimal^ operator *(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Mul(y); }
-		static BigDecimal^ operator /(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Div(y); }
-		static BigDecimal^ operator %(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Fmod(y); }
-		static BigDecimal^ operator ^(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Pow(y); }
+		static BigDecimal^ operator +(BigDecimal^ x, Int64 y) { return LValue(x, y)->Add(y); }
+		static BigDecimal^ operator +(BigDecimal^ x, UInt64 y) { return LValue(x, y)->Add(y); }
+		static BigDecimal^ operator +(BigDecimal^ x, Double y) { return LValue(x, y)->Add(y); }
 
-		static BigDecimal^ operator ++(BigDecimal^ x) { return LValue(x)->Add(1); }
-		static BigDecimal^ operator --(BigDecimal^ x) { return LValue(x)->Sub(1); }
+		static BigDecimal^ operator -(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Sub(y); }
+		static BigDecimal^ operator -(BigDecimal^ x, Int64 y) { return LValue(x, y)->Sub(y); }
+		static BigDecimal^ operator -(BigDecimal^ x, UInt64 y) { return LValue(x, y)->Sub(y); }
+		static BigDecimal^ operator -(BigDecimal^ x, Double y) { return LValue(x, y)->Sub(y); }
+
+		static BigDecimal^ operator *(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Mul(y); }
+		static BigDecimal^ operator *(BigDecimal^ x, Int64 y) { return LValue(x, y)->Mul(y); }
+		static BigDecimal^ operator *(BigDecimal^ x, UInt64 y) { return LValue(x, y)->Mul(y); }
+		static BigDecimal^ operator *(BigDecimal^ x, Double y) { return LValue(x, y)->Mul(y); }
+
+		static BigDecimal^ operator /(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Div(y); }
+		static BigDecimal^ operator /(BigDecimal^ x, Int64 y) { return LValue(x, y)->Div(y); }
+		static BigDecimal^ operator /(BigDecimal^ x, UInt64 y) { return LValue(x, y)->Div(y); }
+		static BigDecimal^ operator /(BigDecimal^ x, Double y) { return LValue(x, y)->Div(y); }
+
+		static BigDecimal^ operator %(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Fmod(y); }
+		static BigDecimal^ operator %(BigDecimal^ x, Int64 y) { return LValue(x, y)->Fmod(y); }
+		static BigDecimal^ operator %(BigDecimal^ x, UInt64 y) { return LValue(x, y)->Fmod(y); }
+		static BigDecimal^ operator %(BigDecimal^ x, Double y) { return LValue(x, y)->Fmod(y); }
+
+		static BigDecimal^ operator ^(BigDecimal^ x, BigDecimal^ y) { return LValue(x, y)->Pow(y); }
+		static BigDecimal^ operator ^(BigDecimal^ x, Int64 y) { return LValue(x, y)->Pow(y); }
+		static BigDecimal^ operator ^(BigDecimal^ x, UInt64 y) { return LValue(x, y)->Pow(y); }
+
+		static BigDecimal^ operator ++(BigDecimal^ x) { return LValue(x)->Add((UInt64)1); }
+		static BigDecimal^ operator --(BigDecimal^ x) { return LValue(x)->Sub((UInt64)1); }
 #pragma endregion
 #pragma region Comparison Operators
 
@@ -791,8 +811,6 @@ namespace System::ArbitraryPrecision
 		}
 #pragma endregion
 
-		// TODO: Add/Sub/Mul/Div number overloads
-
 #pragma region Arithmetic Functions
 
 		/// <summary>
@@ -837,6 +855,51 @@ namespace System::ArbitraryPrecision
 		BigDecimal^ Add(BigDecimal^ y, Rounding^ rounding) { mpfr_add(value, value, y->value, rounding); return this; }
 
 		/// <summary>
+		/// Set the value to the current value added by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to add</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Add(Int64 y) { return Add(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value added by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to add</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Add(Int64 y, Rounding^ rounding) { mpfr_add_si(value, value, y, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value added by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to add</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Add(UInt64 y) { return Add(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value added by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to add</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Add(UInt64 y, Rounding^ rounding) { mpfr_add_ui(value, value, y, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value added by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to add</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Add(Double y) { return Add(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value added by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to add</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Add(Double y, Rounding^ rounding) { mpfr_add_ui(value, value, y, rounding); return this; }
+
+		/// <summary>
 		/// Set the value to the current value subtracted by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
 		/// </summary>
 		/// <param name="y">The value to subtract</param>
@@ -850,6 +913,51 @@ namespace System::ArbitraryPrecision
 		/// <param name="rounding">The rounding to use</param>
 		/// <returns>This instance with the result</returns>
 		BigDecimal^ Sub(BigDecimal^ y, Rounding^ rounding) { mpfr_sub(value, value, y->value, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value subtracted by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to subtract</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Sub(Int64 y) { return Sub(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value subtracted by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to subtract</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Sub(Int64 y, Rounding^ rounding) { mpfr_sub_si(value, value, y, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value subtracted by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to subtract</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Sub(UInt64 y) { return Sub(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value subtracted by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to subtract</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Sub(UInt64 y, Rounding^ rounding) { mpfr_sub_ui(value, value, y, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value subtracted by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to subtract</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Sub(Double y) { return Sub(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value subtracted by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to subtract</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Sub(Double y, Rounding^ rounding) { mpfr_sub_d(value, value, y, rounding); return this; }
 
 		/// <summary>
 		/// Set the value to the current value multiplied by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
@@ -867,6 +975,51 @@ namespace System::ArbitraryPrecision
 		BigDecimal^ Mul(BigDecimal^ y, Rounding^ rounding) { mpfr_mul(value, value, y->value, rounding); return this; }
 
 		/// <summary>
+		/// Set the value to the current value multiplied by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to multiply by</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Mul(Int64 y) { return Mul(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value multiplied by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to multiply by</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Mul(Int64 y, Rounding^ rounding) { mpfr_mul_si(value, value, y, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value multiplied by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to multiply by</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Mul(UInt64 y) { return Mul(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value multiplied by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to multiply by</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Mul(UInt64 y, Rounding^ rounding) { mpfr_mul_ui(value, value, y, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value multiplied by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to multiply by</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Mul(Double y) { return Mul(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value multiplied by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to multiply by</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Mul(Double y, Rounding^ rounding) { mpfr_mul_d(value, value, y, rounding); return this; }
+
+		/// <summary>
 		/// Set the value to the current value divided by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
 		/// </summary>
 		/// <param name="y">The value to divide by</param>
@@ -880,6 +1033,51 @@ namespace System::ArbitraryPrecision
 		/// <param name="rounding">The rounding to use</param>
 		/// <returns>This instance with the result</returns>
 		BigDecimal^ Div(BigDecimal^ y, Rounding^ rounding) { mpfr_div(value, value, y->value, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value divided by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to divide by</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Div(Int64 y) { return Div(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value divided by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to divide by</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Div(Int64 y, Rounding^ rounding) { mpfr_div_si(value, value, y, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value divided by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to divide by</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Div(UInt64 y) { return Div(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value divided by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to divide by</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Div(UInt64 y, Rounding^ rounding) { mpfr_div_ui(value, value, y, rounding); return this; }
+
+		/// <summary>
+		/// Set the value to the current value divided by <paramref name="y"/> using the <see cref="DefaultRounding"/>.
+		/// </summary>
+		/// <param name="y">The value to divide by</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Div(Double y) { return Div(y, DefaultRounding); }
+
+		/// <summary>
+		/// Set the value to the current value divided by <paramref name="y"/> using <paramref name="rounding"/>.
+		/// </summary>
+		/// <param name="y">The value to divide by</param>
+		/// <param name="rounding">The rounding to use</param>
+		/// <returns>This instance with the result</returns>
+		BigDecimal^ Div(Double y, Rounding^ rounding) { mpfr_div_si(value, value, y, rounding); return this; }
 
 		/// <summary>
 		/// Raise the current value to <paramref name="y"/> using the <see cref="DefaultRounding"/>.

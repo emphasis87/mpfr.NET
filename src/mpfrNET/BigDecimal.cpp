@@ -12,14 +12,14 @@ namespace System::ArbitraryPrecision {
 			throw gcnew ArgumentOutOfRangeException("base", "Only a base between 2 and 62 is allowed.");
 
 		if (provider == nullptr)
-			provider = CultureInfo::InvariantCulture;
+			provider = CultureInfo::CurrentCulture;
 
 		NumberFormatInfo^ formatter = NumberFormatInfo::GetInstance(provider);
 
-		if (mpfr_inf_p(value))
-			return mpfr_sgn(value) > 0 ? formatter->PositiveInfinitySymbol : formatter->NegativeInfinitySymbol;
+		if (IsInfinity())
+			return IsPositive() ? formatter->PositiveInfinitySymbol : formatter->NegativeInfinitySymbol;
 
-		if (mpfr_nan_p(value))
+		if (IsNaN())
 			return formatter->NaNSymbol;
 
 		mp_exp_t exp = 0;
@@ -27,6 +27,10 @@ namespace System::ArbitraryPrecision {
 		char * str = mpfr_get_str(NULL, &exp, base, digits, value, MPFR_RNDN);
 		String^ result = gcnew String(str);
 		mpfr_free_str(str);
+
+		int pos = exp + 1;
+		if (pos > 0)
+			result = result->Insert(exp, formatter->CurrencyDecimalSeparator);
 
 		return result;
 	}
