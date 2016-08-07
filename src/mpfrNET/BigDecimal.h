@@ -886,7 +886,7 @@ namespace System::ArbitraryPrecision
 		/// </summary>
 		/// <param name="y">The value to raise by</param>
 		/// <returns>This instance with the result</returns>
-		BigDecimal^ Pow(BigDecimal^ y) { return Div(y, DefaultRounding); }
+		BigDecimal^ Pow(BigDecimal^ y) { return Pow(y, DefaultRounding); }
 
 		/// <summary>
 		/// Raise the current value to <paramref name="y"/> using <paramref name="rounding"/>.
@@ -999,14 +999,14 @@ namespace System::ArbitraryPrecision
 		/// <summary>
 		/// Set the value to a positive difference from <paramref name="y"/> using the <see cref="DefaultRounding"/>.
 		/// </summary>
-		/// <param name="y">The value to divide by</param>
+		/// <param name="y">The value from which to compute the positive difference from</param>
 		/// <returns>This instance with the result</returns>
-		BigDecimal^ Dim(BigDecimal^ y) { return Div(y, DefaultRounding); }
+		BigDecimal^ Dim(BigDecimal^ y) { return Dim(y, DefaultRounding); }
 
 		/// <summary>
 		/// Set the value to a positive difference from <paramref name="y"/> using <paramref name="rounding"/>.
 		/// </summary>
-		/// <param name="y">The value to divide by</param>
+		/// <param name="y">The value from which to compute the positive difference from</param>
 		/// <param name="rounding">The rounding to use</param>
 		/// <returns>This instance with the result</returns>
 		BigDecimal^ Dim(BigDecimal^ y, Rounding^ rounding) { mpfr_dim(value, value, y->value, rounding); return this; }
