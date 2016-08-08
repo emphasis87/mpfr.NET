@@ -23,6 +23,29 @@ namespace mpfrNET.Tests
 			x.Should().Be(result);
 		}
 
+		[Test]
+		public void Can_Ln_ulong_max()
+		{
+			var a2 = new BigDecimal((ulong)1000000000, 1024).Ln();
+			var b2 = new BigDecimal("20.7232658369464111561619230921592778684099133976589567842999511087081534", 10, 1024);
+
+			a2.Should().Be(b2);
+
+			var a1 = new BigDecimal((ulong)1000000000000, 2048).Ln();
+			var b1 = new BigDecimal("27.6310211159285482082158974562123704912132178635452757123999348116108713", 10, 1024);
+
+			a1.Should().Be(b1);
+
+			var a = new BigDecimal((ulong)1000000000000000, 1024).Ln();
+			var b = new BigDecimal("34.5387763949106852602698718202654631140165223294315946404999185145135891", 10, 1024);
+
+			a.Should().Be(b);
+
+			var x = new BigDecimal(ulong.MaxValue, 1024).Ln();
+			var y = new BigDecimal("44.3614195558364998026486456646990251351301665910743113187672175213419595", 10, 1024);
+			x.Should().Be(y);
+		}
+
 		[TestCase(double.NaN, double.NaN)]
 		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
