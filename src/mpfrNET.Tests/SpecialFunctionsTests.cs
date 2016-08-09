@@ -7,8 +7,8 @@ namespace mpfrNET.Tests
 	public class SpecialFunctionsTests
 	{
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.NegativeInfinity)]
 		[TestCase(1, 0)]
 		[TestCase(-1, double.NaN)]
@@ -47,8 +47,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.NegativeInfinity)]
 		[TestCase(1, 0)]
 		[TestCase(-1, double.NaN)]
@@ -63,8 +63,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.NegativeInfinity)]
 		[TestCase(1, 0)]
 		[TestCase(-1, double.NaN)]
@@ -78,8 +78,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(0, 1)]
 		[TestCase(1, 2.718281828459045235360287471352662497757247093699959574966967627724076630)]
 		[TestCase(-2, 0.135335283236612691893999494972484403407631545909575881468158872654073374)]
@@ -94,8 +94,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(0, 1)]
 		[TestCase(1, 2)]
 		[TestCase(-2, 0.25)]
@@ -108,8 +108,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(0, 1)]
 		[TestCase(1, 10)]
 		[TestCase(-2, 0.01)]
@@ -122,8 +122,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.841470984807896506652502321630298999622563060798371065672751709991910404)]
 		[TestCase(-2, -0.909297426825681695396019865911744842702254971447890268378973011530967301)]
@@ -138,8 +138,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 1)]
 		[TestCase(1, 0.540302305868139717400936607442976603732310420617922227670097255381100394)]
 		[TestCase(-2, -0.416146836547142386997568229500762189766000771075544890755149973781964936)]
@@ -154,8 +154,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 0)]
 		[TestCase(1, 1.557407724654902230506974807458360173087250772381520038383946605698861397)]
 		[TestCase(-2, 2.185039863261518991643306102313682543432017746227663164562955869966773747)]
@@ -170,8 +170,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 1)]
 		[TestCase(1, 1.850815717680925617911753241398650193470396655094009298835158277858815411)]
 		[TestCase(-2, -2.402997961722380989754600401420066226245121093154526013044400970212074081)]
@@ -186,8 +186,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.PositiveInfinity)]
 		[TestCase(1, 1.188395105778121216261599452374551003527829834097962625265253666359184367)]
 		[TestCase(-2, -1.099750170294616466756697397026312896658764443149845708742554443062569126)]
@@ -202,8 +202,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.PositiveInfinity)]
 		[TestCase(1, 0.642092615934330703006419986594265620230278113918171379101162280426276856)]
 		[TestCase(-2, 0.457657554360285763750277410432047276428486329231674329641392162636292270)]
@@ -218,8 +218,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(0.1, 1.470628905633336822885798512187058123529908727457923369096448441117505529)]
 		[TestCase(-0.2, 1.772154247585227410686447243857374852338622781089781296744723539609517577)]
@@ -234,8 +234,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 0)]
 		[TestCase(0.1, 0.100167421161559796345523179452693318568675972229629541391023855036402673)]
 		[TestCase(-0.2, -0.2013579207903307914551255522176234102400380814022283862572512434556093747)]
@@ -250,8 +250,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(double.PositiveInfinity, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
+		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.785398163397448309615660845819875721049292349843776455243736148076954101)]
 		[TestCase(-2, -1.107148717794090503017065460178537040070047645401432646676539207433710338)]
@@ -266,15 +266,15 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, 0, double.NaN)]
+		[TestCase(double.PositiveInfinity, double.PositiveInfinity, +0.785398163397448309615660845819875721049292349843776455243736148076954101)]
+		[TestCase(double.PositiveInfinity, 1, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
+		[TestCase(-1.1, double.PositiveInfinity, -0)]
+		[TestCase(+1.1, double.PositiveInfinity, +0)]
 		[TestCase(double.NegativeInfinity, double.NegativeInfinity, -2.356194490192344928846982537459627163147877049531329365731208444230862304)]
 		[TestCase(double.NegativeInfinity, double.PositiveInfinity, -0.785398163397448309615660845819875721049292349843776455243736148076954101)]
 		[TestCase(double.NegativeInfinity, 1, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(-1.1, double.NegativeInfinity, -3.141592653589793238462643383279502884197169399375105820974944592307816406)]
 		[TestCase(+1.1, double.NegativeInfinity, +3.141592653589793238462643383279502884197169399375105820974944592307816406)]
-		[TestCase(double.PositiveInfinity, double.PositiveInfinity, +0.785398163397448309615660845819875721049292349843776455243736148076954101)]
-		[TestCase(double.PositiveInfinity, 1, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
-		[TestCase(-1.1, double.PositiveInfinity, -0)]
-		[TestCase(+1.1, double.PositiveInfinity, +0)]
 		[TestCase(+0, -0, 3.141592653589793238462643383279502884197169399375105820974944592307816406)]
 		[TestCase(-0, -0, -3.141592653589793238462643383279502884197169399375105820974944592307816406)]
 		[TestCase(+0, +0, +0)]
@@ -299,8 +299,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.PositiveInfinity)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.PositiveInfinity)]
 		[TestCase(0, 1)]
 		[TestCase(1, 1.54308063481524377847790562075706168260152911236586370473740221471076906)]
 		[TestCase(-2, 3.76219569108363145956221347777374610829397355823071160277764334758832358)]
@@ -315,8 +315,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NegativeInfinity)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NegativeInfinity)]
 		[TestCase(0, 0)]
 		[TestCase(1, 1.17520119364380145688238185059560081515571798133409587022956541301330756)]
 		[TestCase(-2, -3.6268604078470187676682139828012617048863420123211357213094844749342502)]
@@ -331,8 +331,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1)]
 		[TestCase(double.PositiveInfinity, 1)]
+		[TestCase(double.NegativeInfinity, -1)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.76159415595576488811945828260479359041276859725793655159681050012195324)]
 		[TestCase(-2, -0.9640275800758168839464137241009231502550299762409347760482632174131079)]
@@ -347,8 +347,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(double.PositiveInfinity, 0)]
+		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(0, 1)]
 		[TestCase(1, 0.64805427366388539957497735322615032310848931207194202303786533731871759)]
 		[TestCase(-2, 0.26580222883407969212086273981988897153078265443226806971464114746672454)]
@@ -363,8 +363,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(double.PositiveInfinity, 0)]
+		[TestCase(double.NegativeInfinity, 0)]
 		[TestCase(0, double.NaN)]
 		[TestCase(1, 0.85091812823932154513384276328717528418172466091033961699042115172900336)]
 		[TestCase(-2, -0.2757205647717832077583514821630271212496226719912580519731712337225655)]
@@ -379,8 +379,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1)]
 		[TestCase(double.PositiveInfinity, 1)]
+		[TestCase(double.NegativeInfinity, -1)]
 		[TestCase(0, double.NaN)]
 		[TestCase(1, 1.31303528549933130363616124693084783291201394124045265554315296756708427)]
 		[TestCase(-2, -1.0373147207275480958778097647678207116623912692491946035699817338445187)]
@@ -395,8 +395,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.PositiveInfinity)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.PositiveInfinity)]
 		[TestCase(0, double.NaN)]
 		[TestCase(1, 0)]
 		[TestCase(-2, double.NaN)]
@@ -409,8 +409,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NegativeInfinity)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NegativeInfinity)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.88137358701954302523260932497979230902816032826163541075329560865337718)]
 		[TestCase(-2, -1.4436354751788103424932767402731052694055530031569815589830545065204916)]
@@ -425,11 +425,11 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 0)]
 		[TestCase(0.1, 0.10033534773107558063572655206003894526336286914595913587458952092779251)]
-		[TestCase(-0.2, 0.20273255405408219098900655773217456828599521173124709880700716207205033)]
+		[TestCase(-0.2, -0.20273255405408219098900655773217456828599521173124709880700716207205033)]
 		[TestCase(1, double.PositiveInfinity)]
 		[TestCase(-2, double.NaN)]
 		public void Can_Atanh(double left, double result)
@@ -452,8 +452,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.PositiveInfinity)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 0)]
 		[TestCase(-0.5, -0.6931471805599453094172321214581765680755001343602552541206800094933936)]
 		[TestCase(1, 0.69314718055994530941723212145817656807550013436025525412068000949339362)]
@@ -467,8 +467,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, -1)]
 		[TestCase(0, 0)]
 		[TestCase(1, 1.71828182845904523536028747135266249775724709369995957496696762772407663)]
 		[TestCase(-2, -0.8646647167633873081060005050275155965923684540904241185318411273459266)]
@@ -483,15 +483,13 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, 0)]
-		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.NegativeInfinity)]
 		[TestCase(1, 1.89511781635593675546652093433163426901706058173270759164622843188251383)]
-		[TestCase(-2, -0.04890051070806111956723983522804952231449218496302311632732287371169292)]
+		[TestCase(-2, double.NaN)]
 		[TestCase(4.99, 39.8896329861479531030900128408428660824005935005104230906952473089044356)]
 		[TestCase(5, 40.1852753558031774550914217937958670954190873991959304341828752516426448)]
-		[TestCase(-3.99, -0.00382542893329518213291111468058284463730810109606303515697901108366723)]
-		[TestCase(-4, -0.0037793524098489064788748601324664148517165470424895803607340203135846)]
 		public void Can_Eint(double left, double result)
 		{
 			var x = (double)new BigDecimal(left).Eint();
@@ -499,8 +497,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NegativeInfinity)]
 		[TestCase(double.PositiveInfinity, double.NegativeInfinity)]
+		[TestCase(double.NegativeInfinity, double.NegativeInfinity)]
 		[TestCase(0, 0)]
 		[TestCase(1, 1.64493406684822643647241516664602518921894990120679843773555822937000747)]
 		[TestCase(-2, -1.4367463668836809463629020238935833542499564356548721026672439248650157)]
@@ -514,8 +512,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.NaN)]
 		[TestCase(1, 1)]
 		[TestCase(-2, double.NaN)]
@@ -528,8 +526,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.PositiveInfinity)]
 		[TestCase(1, 0)]
 		[TestCase(-2, double.PositiveInfinity)]
@@ -542,8 +540,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.PositiveInfinity)]
 		[TestCase(1, 0)]
 		[TestCase(-2, double.PositiveInfinity)]
@@ -557,8 +555,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.PositiveInfinity)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, double.NaN)]
 		[TestCase(1, -0.5772156649015328606065120900824024310421593359399235988057672348848677)]
 		[TestCase(-2, double.NaN)]
@@ -571,8 +569,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, -0.5)]
 		[TestCase(1, double.NaN)]
 		[TestCase(-2, 0)]
@@ -587,8 +585,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1)]
 		[TestCase(double.PositiveInfinity, 1)]
+		[TestCase(double.NegativeInfinity, -1)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.84270079294971486934122063508260925929606699796630290845993789783471725)]
 		[TestCase(-2, -0.9953222650189527341620692563672529286108917970400600767383523262004372)]
@@ -603,8 +601,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, 2)]
 		[TestCase(double.PositiveInfinity, 0)]
+		[TestCase(double.NegativeInfinity, 2)]
 		[TestCase(0, 1)]
 		[TestCase(1, 0.15729920705028513065877936491739074070393300203369709154006210216528274)]
 		[TestCase(-2, 1.99532226501895273416206925636725292861089179704006007673835232620043728)]
@@ -619,8 +617,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 1)]
 		[TestCase(1, 0.84147098480789650665250232163029899962256306079837106567275170999191040)]
 		[TestCase(-2, 0.45464871341284084769800993295587242135112748572394513418948650576548365)]
@@ -635,8 +633,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(double.PositiveInfinity, double.NaN)]
+		[TestCase(double.NegativeInfinity, double.NaN)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.30116867893975678925156571418732239589025264018044883800265445461081000)]
 		[TestCase(-2, -0.4353977749799916173477890812283173055585641283997450124723182397737242)]
@@ -651,8 +649,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(double.PositiveInfinity, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
+		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(0, 37, 0)]
 		[TestCase(1, 3, 0.00900658111711251625940839047101854435072165853442840367340381459178811)]
 		[TestCase(-2, 3, -0.0607220976628748284613951409881915369082326387894359488251588949640326)]
@@ -667,8 +665,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(double.PositiveInfinity, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
+		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.785398163397448309615660845819875721049292349843776455243736148076954101)]
 		[TestCase(-2, -1.107148717794090503017065460178537040070047645401432646676539207433710338)]
@@ -699,8 +697,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(double.PositiveInfinity, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
+		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.785398163397448309615660845819875721049292349843776455243736148076954101)]
 		[TestCase(-2, -1.107148717794090503017065460178537040070047645401432646676539207433710338)]
@@ -716,8 +714,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(double.PositiveInfinity, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
+		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.785398163397448309615660845819875721049292349843776455243736148076954101)]
 		[TestCase(-2, -1.107148717794090503017065460178537040070047645401432646676539207433710338)]
@@ -732,8 +730,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(double.PositiveInfinity, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
+		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.785398163397448309615660845819875721049292349843776455243736148076954101)]
 		[TestCase(-2, -1.107148717794090503017065460178537040070047645401432646676539207433710338)]
@@ -748,8 +746,8 @@ namespace mpfrNET.Tests
 		}
 
 		[TestCase(double.NaN, double.NaN)]
-		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(double.PositiveInfinity, 1.570796326794896619231321691639751442098584699687552910487472296153908203)]
+		[TestCase(double.NegativeInfinity, -1.570796326794896619231321691639751442098584699687552910487472296153908203)]
 		[TestCase(0, 0)]
 		[TestCase(1, 0.785398163397448309615660845819875721049292349843776455243736148076954101)]
 		[TestCase(-2, -1.107148717794090503017065460178537040070047645401432646676539207433710338)]
