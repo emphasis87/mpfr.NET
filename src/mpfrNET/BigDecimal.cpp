@@ -6,7 +6,6 @@ using namespace System::Globalization;
 using namespace System::Runtime::InteropServices;
 
 namespace System::ArbitraryPrecision {
-
 	String^ BigDecimal::ToString(int base, String^ format, IFormatProvider^ provider) {
 		if (base < 2 || base > 62)
 			throw gcnew ArgumentOutOfRangeException("base", "Only a base between 2 and 62 is allowed.");
@@ -34,10 +33,8 @@ namespace System::ArbitraryPrecision {
 		if (format == "R")
 			return result;
 
-		result = result->TrimEnd('0');
-		
+
 		int pos = exp;
-		
 		if (pos <= 0) {
 			if (IsNegative())
 				result = result->TrimStart('-');
@@ -55,6 +52,10 @@ namespace System::ArbitraryPrecision {
 		pos--;
 		if (pos > 0)
 			result = result->Insert(pos, formatter->CurrencyDecimalSeparator);
+
+		result = result->TrimEnd('0');
+		if (result->EndsWith(formatter->CurrencyDecimalSeparator))
+			result = result->Substring(0, result->Length - formatter->CurrencyDecimalSeparator->Length);
 
 		return result;
 	}
