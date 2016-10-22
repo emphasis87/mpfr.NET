@@ -31,6 +31,9 @@ namespace System::ArbitraryPrecision {
 		String^ result = gcnew String(str);
 		mpfr_free_str(str);
 
+		if (format == "R")
+			return result;
+
 		result = result->TrimEnd('0');
 		
 		int pos = exp;
