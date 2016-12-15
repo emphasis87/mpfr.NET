@@ -1,0 +1,102 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Net" #>
+<#@ import namespace="System.IO" #>
+<#@ output extension=".generated.cs" #>
+using System.Text;
+using System.Runtime.InteropServices;
+
+namespace System.Numerics.MPFR
+{
+	public partial class MPFRLibrary
+	{
+		public const string Name = "libmpfr-4";
+
+<#
+	var client = new WebClient ();
+
+	string content = null;
+	using (var data = client.OpenRead (@"http://www.mpfr.org/mpfr-current/mpfr.html"))
+	using (var reader = new StreamReader (data))
+	{
+		content = reader.ReadToEnd ();
+	}
+
+	// Function: <em>void</em> <strong>mpfr_init2</strong> <em>(mpfr_t <var>x</var>, mpfr_prec_t <var>prec</var>)</em></dt>
+	var fn = new Regex(@"Function:.+</dt>", RegexOptions.Compiled);
+	var tag = new Regex(@"(Function: )|(</?.*?>)", RegexOptions.Compiled);
+	
+	var except = new Regex(@"long double|mp(z|q|f)_t|u?intmax_t|_Decimal64|FILE|char \*\*|gmp", RegexOptions.Compiled);
+
+	var mpfr_t = new Regex(@"mpfr_t ", RegexOptions.Compiled);
+	var mpfr_rnd_t = new Regex(@"mpfr_rnd_t", RegexOptions.Compiled);
+	var mpfr_prec_t = new Regex(@"mpfr_prec_t", RegexOptions.Compiled);
+	var mpfr_exp_t = new Regex(@"mpfr_exp_t", RegexOptions.Compiled);
+	var unsigned_long_int = new Regex(@"unsigned long( int)?", RegexOptions.Compiled);
+	var long_int = new Regex(@"long int", RegexOptions.Compiled);
+	var void_params = new Regex(@"\(void\)", RegexOptions.Compiled);
+	var const_char_ptr = new Regex(@"const char \*", RegexOptions.Compiled);
+	var char_ptr = new Regex(@"char \*", RegexOptions.Compiled);
+	var long_ptr = new Regex(@"long ?\*", RegexOptions.Compiled);
+	var int_ptr = new Regex(@"int \*", RegexOptions.Compiled);
+	var void_ptr = new Regex(@"void \*", RegexOptions.Compiled);
+	var char_ptr_start = new Regex(@"^(char \*)", RegexOptions.Compiled);
+	var size_t = new Regex(@"size_t", RegexOptions.Compiled);
+	var sbase = new Regex(@"base", RegexOptions.Compiled);
+	var elipsis = new Regex(@"\.\.\.|&hellip;", RegexOptions.Compiled);
+	var va_list = new Regex(@"va_list", RegexOptions.Compiled);
+	var mpfr_ptr_const = new Regex(@"mpfr_ptr const (.*?)\[\]", RegexOptions.Compiled);
+	var fndecl = new Regex(@" \(", RegexOptions.Compiled);
+	var spaces = new Regex(@" +", RegexOptions.Compiled);
+
+	PushIndent("\t\t");
+
+	var m = fn.Match(content);
+	while (m.Success) {
+		var def = m.Value;
+		m = m.NextMatch();
+
+		if (except.IsMatch(def))
+			continue;
+
+		def = tag.Replace(def, "");
+		def = mpfr_t.Replace(def, "[In, Out] mpfr_struct ");
+		def = mpfr_rnd_t.Replace(def, "int");
+		def = mpfr_prec_t.Replace(def, "ulong");
+		def = mpfr_exp_t.Replace(def, "long");
+		def = mpfr_ptr_const.Replace(def, "IntPtr[] $1");
+		def = size_t.Replace(def, "uint");
+		def = unsigned_long_int.Replace(def, "ulong");
+		def = long_int.Replace(def, "long");
+		def = void_params.Replace(def, "()");
+		def = const_char_ptr.Replace(def, "string ");
+		def = long_ptr.Replace(def, "ref long ");
+		def = int_ptr.Replace(def, "ref int ");
+		def = void_ptr.Replace(def, "IntPtr ");
+		def = elipsis.Replace(def, "IntPtr args");
+		def = va_list.Replace(def, "IntPtr");
+
+		WriteLine("[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]");
+
+		if (char_ptr_start.IsMatch(def)){
+			WriteLine("[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CharPtrMarshaler))]");
+		}
+
+		def = char_ptr_start.Replace(def, "string");
+		def = char_ptr.Replace(def, "StringBuilder ");
+		def = sbase.Replace(def, "sbase");
+		def = fndecl.Replace(def, "(");
+		def = spaces.Replace(def, " ");
+
+		WriteLine("public static extern " + def + ";");
+		WriteLine("");
+	}
+
+	PopIndent();
+#>
+	}
+}

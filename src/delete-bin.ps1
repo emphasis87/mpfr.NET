@@ -1,4 +1,4 @@
-$folders = ls -Path .\ -Include bin,obj -Recurse | ? { $_.PSIsContainer }
+$folders = ls -Path .\ -Include bin,obj,Debug,Release,ipch -Recurse | ? { $_.PSIsContainer }
 foreach ($folder in $folders){
     try {
         Write-Host $folder
