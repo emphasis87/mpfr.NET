@@ -44,7 +44,7 @@
     <Compile Include="BigFloat.static.cs" />
     <Compile Include="BigFloat.ctors.cs" />
     <Compile Include="BigFloatExtensions.cs" />
-    <Compile Include="CharPtrMarshaller.cs" />
+    <Compile Include="CStringMarshaler.cs" />
     <Compile Include="MPFRLibrary.cs" />
     <Compile Include="MPFRLibrary.generated.cs">
       <AutoGen>True</AutoGen>
