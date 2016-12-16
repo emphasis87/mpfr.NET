@@ -2,8 +2,14 @@
 
 namespace System.Numerics.MPFR
 {
-	public partial class BigFloat
+	public partial class BigFloat : IDisposable
 	{
+		static BigFloat()
+		{
+			mpfr_set_default_rounding_mode(defaultRounding);
+			mpfr_set_default_prec(defaultPrecision);
+		}
+
 		/// <summary>
 		/// Create a new <see cref="BigFloat"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
 		/// The <paramref name="value"/> string is expected to be in a specified <paramref name="vbase"/>.
@@ -70,5 +76,29 @@ namespace System.Numerics.MPFR
 			_value = value1;
 			SetPrecision(precision); Set(value); }
 			*/
+
+		private bool _disposed;
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (_disposed)
+				return;
+
+			if (_value != null)
+				mpfr_clear(_value);
+
+			_disposed = true;
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		~BigFloat()
+		{
+			Dispose(false);
+		}
 	}
 }
