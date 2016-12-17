@@ -6,6 +6,7 @@ using System.IO;
 using System.Numerics.MPFR;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace mpfrNET.TestApp
 {
@@ -80,12 +81,47 @@ namespace mpfrNET.TestApp
 			//Assembly.LoadFile(@"c:\libs\libmpfr-4.dll");
 		}
 
+		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+		public static extern IntPtr GetModuleHandle(string lpModuleName);
+
+		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+		public static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, [MarshalAs(UnmanagedType.U4)]int nSize);
+
 		private static void Main(string[] args)
 		{
+			Console.WriteLine("MAIN");
+			var mpfr = GetModuleHandle("libmpfr-4");
+			if (mpfr == IntPtr.Zero)
+			{
+				Console.WriteLine("LOADLIBRARY");
+				mpfr = LoadLibrary("libmpfr-4");
+			}
+
+			if (mpfr == IntPtr.Zero)
+				Console.WriteLine("UNABLE TO LOAD libmpfr-4");
+			var fileName = new StringBuilder(255);
+			Console.WriteLine("GETMODULEFILENAME");
+			GetModuleFileName(mpfr, fileName, fileName.Capacity);
+
+			var path = fileName.ToString();
+			Console.WriteLine(path);
+
+			Console.WriteLine($"{(Environment.Is64BitProcess ? "x64" : "x32")}");
+
 			//BD();
 			var flt = new BigFloat("1.0");
 			flt.Neg();
 			Console.WriteLine(flt.ToString());
+
+			try
+			{
+				var version = MPFRLibrary.mpfr_get_version();
+				Console.WriteLine(version);
+			}
+			catch (Win32Exception ex)
+			{
+				Console.WriteLine(ex);
+			}
 		}
 		/*
 		private static void BD()
