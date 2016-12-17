@@ -2,9 +2,9 @@
 
 namespace System.Numerics.MPFR
 {
-	internal class CharPtrMarshaler : ICustomMarshaler
+	internal class CStringMarshaler : ICustomMarshaler
 	{
-		internal static readonly CharPtrMarshaler _instance = new CharPtrMarshaler();
+		internal static readonly CStringMarshaler _instance = new CStringMarshaler();
 
 		public static ICustomMarshaler GetInstance(string cookie) => _instance;
 

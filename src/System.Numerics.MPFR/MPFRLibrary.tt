@@ -83,7 +83,7 @@ namespace System.Numerics.MPFR
 		WriteLine("[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]");
 
 		if (char_ptr_start.IsMatch(def)){
-			WriteLine("[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CharPtrMarshaler))]");
+			WriteLine("[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CStringMarshaler))]");
 		}
 
 		def = char_ptr_start.Replace(def, "string");

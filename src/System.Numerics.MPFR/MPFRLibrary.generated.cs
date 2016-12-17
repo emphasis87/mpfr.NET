@@ -95,7 +95,7 @@ namespace System.Numerics.MPFR
 		public static extern int mpfr_frexp(ref long exp, [In, Out] mpfr_struct y, [In, Out] mpfr_struct x, int rnd);
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
-		[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CharPtrMarshaler))]
+		[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CStringMarshaler))]
 		public static extern string mpfr_get_str(StringBuilder str, ref long expptr, int b, uint n, [In, Out] mpfr_struct op, int rnd);
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
