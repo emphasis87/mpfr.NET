@@ -552,6 +552,7 @@ namespace System.Numerics.MPFR
 		public static extern ulong mpfr_min_prec([In, Out] mpfr_struct x);
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
+		[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CStringMarshaler))]
 		public static extern string mpfr_print_rnd_mode(int rnd);
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
@@ -585,9 +586,11 @@ namespace System.Numerics.MPFR
 		public static extern int mpfr_copysign([In, Out] mpfr_struct rop, [In, Out] mpfr_struct op1, [In, Out] mpfr_struct op2, int rnd);
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
+		[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CStringMarshaler))]
 		public static extern string mpfr_get_version();
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
+		[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CStringMarshaler))]
 		public static extern string mpfr_get_patches();
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
@@ -597,6 +600,7 @@ namespace System.Numerics.MPFR
 		public static extern int mpfr_buildopt_decimal_p();
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]
+		[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CStringMarshaler))]
 		public static extern string mpfr_buildopt_tune_case();
 
 		[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]

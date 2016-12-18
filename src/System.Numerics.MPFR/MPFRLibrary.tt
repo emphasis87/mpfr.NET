@@ -44,7 +44,7 @@ namespace System.Numerics.MPFR
 	var long_ptr = new Regex(@"long ?\*", RegexOptions.Compiled);
 	var int_ptr = new Regex(@"int \*", RegexOptions.Compiled);
 	var void_ptr = new Regex(@"void \*", RegexOptions.Compiled);
-	var char_ptr_start = new Regex(@"^(char \*)", RegexOptions.Compiled);
+	var char_ptr_start = new Regex(@"^((const *)?char \*)", RegexOptions.Compiled);
 	var size_t = new Regex(@"size_t", RegexOptions.Compiled);
 	var sbase = new Regex(@"base", RegexOptions.Compiled);
 	var elipsis = new Regex(@"\.\.\.|&hellip;", RegexOptions.Compiled);
@@ -73,7 +73,6 @@ namespace System.Numerics.MPFR
 		def = unsigned_long_int.Replace(def, "ulong");
 		def = long_int.Replace(def, "long");
 		def = void_params.Replace(def, "()");
-		def = const_char_ptr.Replace(def, "string ");
 		def = long_ptr.Replace(def, "ref long ");
 		def = int_ptr.Replace(def, "ref int ");
 		def = void_ptr.Replace(def, "IntPtr ");
@@ -86,6 +85,7 @@ namespace System.Numerics.MPFR
 			WriteLine("[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CStringMarshaler))]");
 		}
 
+		def = const_char_ptr.Replace(def, "string ");
 		def = char_ptr_start.Replace(def, "string");
 		def = char_ptr.Replace(def, "StringBuilder ");
 		def = sbase.Replace(def, "sbase");

@@ -87,6 +87,9 @@ namespace mpfrNET.TestApp
 		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, [MarshalAs(UnmanagedType.U4)]int nSize);
 
+		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+		public static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
+
 		private static void Main(string[] args)
 		{
 			Console.WriteLine("MAIN");
@@ -109,19 +112,29 @@ namespace mpfrNET.TestApp
 			Console.WriteLine($"{(Environment.Is64BitProcess ? "x64" : "x32")}");
 
 			//BD();
-			var flt = new BigFloat("1.0");
-			flt.Neg();
-			Console.WriteLine(flt.ToString());
+			for (int i = 0; i < 5; i++)
+			{
+				var flt = new BigFloat("1.0");
+				flt.Neg();
+				Console.WriteLine(flt.ToString());
+			}
 
-			try
-			{
-				var version = MPFRLibrary.mpfr_get_version();
-				Console.WriteLine(version);
-			}
-			catch (Win32Exception ex)
-			{
-				Console.WriteLine(ex);
-			}
+			var value = new mpfr_struct();
+			MPFRLibrary.mpfr_init(value);
+			MPFRLibrary.mpfr_set_str(value, "10", 10, (int)Rounding.AwayFromZero);
+			MPFRLibrary.mpfr_log(value, value, (int)Rounding.AwayFromZero);
+			var sb = new StringBuilder(100);
+			long expptr = 0;
+			MPFRLibrary.mpfr_get_str(sb, ref expptr, 10, 0, value, (int)Rounding.AwayFromZero);
+			Console.WriteLine(sb.ToString());
+
+			var gv = GetProcAddress(mpfr, "mpfr_get_version");
+			if (gv == IntPtr.Zero)
+				Console.WriteLine("NO mpfr_get_version");
+
+			var v = MPFRLibrary.mpfr_get_version();
+			var ve = Marshal.PtrToStringAnsi(v);
+			Console.WriteLine(ve);
 		}
 		/*
 		private static void BD()

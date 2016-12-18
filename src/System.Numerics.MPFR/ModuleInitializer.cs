@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -24,7 +25,13 @@ public static class ModuleInitializer
 		IntPtr mpfr = IntPtr.Zero;
 		try
 		{
-			mpfr = LoadLibrary("libmpfr-4");
+			var asm = typeof(ModuleInitializer).Assembly;
+			var lib = Path.Combine(
+				Path.GetDirectoryName(asm.Location),
+				Environment.Is64BitProcess ? "x64" : "x32",
+				"libmpfr-4.dll");
+			mpfr = LoadLibraryEx(lib, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
+			//mpfr = LoadLibrary("libmpfr-4");
 			if (mpfr == IntPtr.Zero)
 			{
 				Console.WriteLine("Unable to find libmpfr-4 in the default search path.");
@@ -51,20 +58,39 @@ public static class ModuleInitializer
 				}
 			}
 
+			var v = MPFRLibrary.mpfr_get_version();
+			var ve = Marshal.PtrToStringAnsi(v);
+			Console.WriteLine(ve);
+
 			var gv = GetProcAddress(mpfr, "mpfr_get_version");
 			if (gv == IntPtr.Zero)
 			{
+				var err = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+				Console.WriteLine(err);
 				Console.WriteLine($"Unable to find mpfr_get_version in { path ?? "libmpfr-4 from the default search path"}.");
 				return;
 			}
 
 			var getVersion = (mpfr_get_version)Marshal.GetDelegateForFunctionPointer(gv, typeof(mpfr_get_version));
-			MPFRLibrary.Version = getVersion();
+			var v2 = getVersion();
+			Console.WriteLine("DYNAMIC Version " + v2);
 		}
 		finally
 		{
-			if (shouldFreeMpfr && mpfr != IntPtr.Zero) ;
-			//FreeLibrary(mpfr);
+			if (shouldFreeMpfr && mpfr != IntPtr.Zero)
+			{/*
+				while (mpfr != IntPtr.Zero)
+				{
+					Console.WriteLine("FREE");
+					var fileName = new StringBuilder(255);
+					GetModuleFileName(mpfr, fileName, fileName.Capacity);
+
+					var path = fileName.ToString();
+					Console.WriteLine(path);
+					FreeLibrary(mpfr);
+					mpfr = GetModuleHandle("libmpfr-4");
+				}*/
+			}
 		}
 	}
 
@@ -81,7 +107,7 @@ public static class ModuleInitializer
 	[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
 	private static extern bool FreeLibrary(IntPtr hModule);
 
-	[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+	[DllImport("kernel32.dll", ExactSpelling = true, CharSet = CharSet.Ansi, SetLastError = true)]
 	public static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
 
 	[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
