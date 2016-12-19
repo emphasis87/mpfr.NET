@@ -41,11 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BigFloat.functions.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BigFloat.functions.tt</DependentUpon>
+    </Compile>
     <Compile Include="BigFloat.cs" />
-    <Compile Include="BigFloat.instance.cs" />
-    <Compile Include="BigFloat.static.cs" />
-    <Compile Include="BigFloat.ctors.cs" />
-    <Compile Include="BigFloatExtensions.cs" />
     <Compile Include="CStringMarshaler.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="ModuleInitializer.cs" />
@@ -71,6 +72,10 @@
     <Compile Include="NativeLoadingPreferences.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="BigFloat.functions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BigFloat.functions.cs</LastGenOutput>
+    </Content>
     <Content Include="FodyWeavers.xml" />
     <Content Include="MPFRLibrary.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

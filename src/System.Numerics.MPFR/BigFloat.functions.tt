@@ -1,0 +1,206 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using static System.Numerics.MPFR.MPFRLibrary;
+
+namespace System.Numerics.MPFR
+{
+	public partial class BigFloat
+	{
+<#
+	var gen = Host.ResolvePath("MPFRLibrary.generated.cs");
+	var content = File.ReadAllText(gen);
+	
+	var fn = new Regex(@" (\w+?) mpfr_(.*?) ?\((.*?)\);", RegexOptions.Compiled);
+	var attributes = new Regex(@"\[.+?\] *", RegexOptions.Compiled);
+	var except = new Regex(@"(^(init|(clear(s)?)$|get_str|set_prec|set_default|custom|free))|printf", RegexOptions.Compiled);
+	var ending = new Regex(@"^([0-9]+)?(str|si|ui|flt|d)$", RegexOptions.Compiled);
+	var strct = new Regex(@"mpfr_struct", RegexOptions.Compiled);
+	var rndend = new Regex(@"int (rnd\w*)$", RegexOptions.Compiled);
+	var rnd = new Regex(@"int (rnd\w*)", RegexOptions.Compiled);
+	var intptr = new Regex(@"IntPtr", RegexOptions.Compiled);
+	var types = new Regex(@"int|long|struct|string|float|double|IntPtr", RegexOptions.Compiled);
+	var types2 = new Regex(@"int|long|string|float|double|BigFloat|Rounding", RegexOptions.Compiled);
+	var rop = new Regex(@"BigFloat rop", RegexOptions.Compiled);
+	var op = new Regex(@"BigFloat (\w+)", RegexOptions.Compiled);
+	var op12 = new Regex(@"BigFloat (rop|op|op1|x|b)$", RegexOptions.Compiled);
+	var retb = new Regex(@"_p$", RegexOptions.Compiled);
+	var digits = new Regex(@"^[0-9]+", RegexOptions.Compiled);
+	var equal = new Regex(@"(less|greater)(greater|equal)?", RegexOptions.Compiled);
+	var split = new Regex(@"(\w+)?(cmp|next|bit|sign|diff)(\w+)?", RegexOptions.Compiled);
+
+	var fncstat = new List<string>();
+	var fncinst = new List<string>();
+
+	var m = fn.Match(content);
+	while (m.Success){
+		var ret = m.Groups[1].Value;
+		var name = m.Groups[2].Value;
+		var args = m.Groups[3].Value;
+
+		m = m.NextMatch();
+
+		if (except.IsMatch(name) || intptr.IsMatch(args))
+			continue;
+
+		if (name == "prec_round"){
+			fncstat.Add(
+@"public static int PrecRound(BigFloat x, ulong prec, Rounding? rnd = null)
+{
+	var result = mpfr_prec_round(x._value, prec, GetRounding(rnd));
+	x._precision = prec;
+	return result;
+}");
+			fncinst.Add(
+@"public int PrecRound(ulong prec, Rounding? rnd = null) => PrecRound(this, prec, rnd);");
+			continue;
+		}
+
+		args = attributes.Replace(args, "");
+		
+		var args1 = strct.Replace(args, "BigFloat");
+		args1 = rndend.Replace(args1, "Rounding? $1 = null");
+		args1 = rnd.Replace(args1, "Rounding $1");
+
+		var asBool = retb.IsMatch(name);
+
+		var cname = retb.Replace(name, "");
+
+		var me = equal.Match(cname);
+		if (me.Success){
+			cname = AppendOnce(me.Groups[1].Value, "er");
+			if (me.Groups[2].Success)
+				cname += "_or_" + me.Groups[2].Value;
+		}
+
+		cname = split.Replace(cname, "$1_$2_$3");
+		
+		var parts = cname.Split('_', '.');
+	
+		string c = "";
+
+		if (parts.Any(x => ending.IsMatch(x)))
+		{
+			if (parts.FirstOrDefault() != "get")
+				parts = parts.Select(x => ending.Replace(x, "$1")).ToArray();
+			else {
+				switch(parts.Skip(1).FirstOrDefault()){
+					case "si" : c = "ToInt64"; break;
+					case "ui" : c = "ToUInt64"; break;
+					case "flt" : c = "ToSingle"; break;
+					case "d" : c = "ToDouble"; break;
+				}
+			}
+		}
+
+		var capitalized = NotVoid(parts).Select(x => Capitalize(x)).ToList();
+		
+		if (c.Length == 0)
+			c = string.Join("", capitalized);
+	
+		var args2 = new StringBuilder();
+		foreach (var arg in args.Split(','))
+		{
+			var opt = rnd.Replace(arg, "GetRounding($1)");
+			if (strct.IsMatch(arg))
+				opt += "._value";
+			
+			var pts = opt.Split(' ');
+			opt = string.Join(" ", pts.Where(x => !types.IsMatch(x)));
+			
+			args2.Append(opt);
+			args2.Append(", ");
+		}
+		if (args2.Length > 0)
+			args2.Remove(args2.Length - 2, 2);
+		
+		if (rop.IsMatch(args1))
+			ret = "void";
+		if (asBool)
+			ret = "bool";
+
+		fncstat.Add("public static " + ret + " " + c + "(" + args1 + ") => mpfr_" + name + "(" + args2.ToString() + ")" + (asBool ? " != 0" : "" ) + ";");
+
+		if (!op.IsMatch(args1))
+			continue;
+
+		var cnt = 0;
+		var args3 = args1.Split(',').Select(x => {
+			if (op12.IsMatch(x) && cnt < 2){
+				cnt++;
+				return op12.Replace(x, "");
+			}
+			return x;
+		}).ToArray();
+		var args4 = string.Join(", ", NotVoid(args3)).Trim();
+
+		cnt = 0;
+		var args5 = args1.Replace("= null", "").Split(',')
+			.Select(x => {
+				if (op12.IsMatch(x) && cnt < 2){
+					cnt++;
+					return op12.Replace(x, "this");
+				}
+				return x;
+			})
+			.Select(x => string.Join(" ", x.Split(' ').Where(p => !types2.IsMatch(p))));
+		var args6 = string.Join(", ", NotVoid(args5)).Trim();
+
+		var cn2 = (asBool && !name.StartsWith("fits")) ? "Is" + c : c;
+
+		fncinst.Add("public " + ret + " " + cn2 + "(" + args4 + ") => " + c + "(" + args6 + ");");
+	}
+
+	PushIndent("\t\t");
+
+	foreach(var fnc in fncstat)
+		WriteLine(fnc);
+
+	WriteLine("");
+
+	foreach(var fnc in fncinst)
+		WriteLine(fnc);
+
+	PopIndent();
+#>
+	}
+}<#+
+	Regex digits = new Regex(@"^[0-9]+", RegexOptions.Compiled);
+
+	string[] Split(char separator, string value){
+		return value.Split(new [] { separator }, StringSplitOptions.RemoveEmptyEntries);
+	}
+
+	string[] Split(char sep1, char sep2, string value){
+		return value.Split(new [] { sep1, sep2 }, StringSplitOptions.RemoveEmptyEntries);
+	}
+
+	string[] NotVoid(IEnumerable<string> items){
+		if (items == null)
+			return new string[0];
+		return items.Where(x => !string.IsNullOrWhiteSpace(x)).ToArray();
+	}
+
+	string Capitalize(string value){
+		if (string.IsNullOrEmpty(value))
+			return value;
+
+		var md = digits.Match(value);
+		var n = md.Success ? md.Length : 0;
+		var res = (n != 0 ? value.Substring(0, n) : "");
+		if (value.Length >= n + 1){
+			res += value.Substring(n, 1).ToUpper();
+			res += value.Substring(n + 1);
+		}
+		return res;
+	}
+
+	string AppendOnce(string value, string suffix){
+		return value.EndsWith(suffix) ? value : value + suffix;
+	}
+#>

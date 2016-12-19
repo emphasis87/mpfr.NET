@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 
+// ReSharper disable InconsistentNaming
+
 namespace System.Numerics.MPFR
 {
 	[StructLayout(LayoutKind.Sequential)]
