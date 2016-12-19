@@ -7,6 +7,7 @@
 		public const int DefaultPrecision = 53;
 		public const Rounding DefaultRounding = Rounding.NearestTiesToEven;
 
-		public string Version { get; internal set; }
+		public static string Version { get; internal set; }
+		public static string Location { get; internal set; }
 	}
 }

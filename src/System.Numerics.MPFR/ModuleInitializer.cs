@@ -36,16 +36,24 @@ public static class ModuleInitializer
 		}
 
 		var library = FindLibrary();
-		if (library != null)
+		if (library != IntPtr.Zero)
 		{
-			// Console.WriteLine($"Using library: '{library}'");
-			var path = Path.Combine(Path.GetDirectoryName(library), Path.GetFileNameWithoutExtension(library));
+			var path = Libraries[library];
+			path = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
 			var mpfr = LoadLibraryEx(path, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
 			if (mpfr == IntPtr.Zero)
 			{
 				//Console.WriteLine($"Unable to load: '{path}'");
 			}
+
+			MPFRLibrary.Version = Versions[mpfr];
+			MPFRLibrary.Location = path;
 		}
+
+		Modules.Clear();
+		Libraries.Clear();
+		Versions.Clear();
+		LoadingPreferences.Clear();
 	}
 
 	private static void SetupLoadingPreferences()
@@ -78,13 +86,13 @@ public static class ModuleInitializer
 		}
 	}
 
-	private static string FindLibrary()
+	private static IntPtr FindLibrary()
 	{
 		IntPtr mpfr = GetModuleHandle(MPFRLibrary.FileName);
 		if (mpfr != IntPtr.Zero)
 		{
 			//TODO log "nothing can be done, since it is not safe to unload"
-			return null;
+			return IntPtr.Zero;
 		}
 
 		InstallInternalLibrary();
@@ -111,11 +119,10 @@ public static class ModuleInitializer
 			.OrderByDescending(x => Version.Parse(Versions[x]))
 			.FirstOrDefault();
 
-		var latest = Libraries[module];
-		return latest;
+		return module;
 	}
 
-	private static string PreloadLibrary(string dir)
+	private static IntPtr PreloadLibrary(string dir)
 	{
 		var mpfr = IntPtr.Zero;
 		try
@@ -128,12 +135,12 @@ public static class ModuleInitializer
 			if (mpfr == IntPtr.Zero)
 			{
 				// TODO log
-				return null;
+				return IntPtr.Zero;
 			}
 
 			if (Libraries.ContainsKey(mpfr))
 			{
-				return null;
+				return IntPtr.Zero;
 			}
 
 			Modules.Add(mpfr);
@@ -142,18 +149,18 @@ public static class ModuleInitializer
 			if (IgnoreUnversioned && version == null)
 			{
 				// TODO log
-				return null;
+				return IntPtr.Zero;
 			}
 
 			Libraries[mpfr] = path;
 			Versions[mpfr] = version;
 
-			return path;
+			return mpfr;
 		}
 		catch
 		{
 			// TODO log
-			return null;
+			return IntPtr.Zero;
 		}
 		finally
 		{
