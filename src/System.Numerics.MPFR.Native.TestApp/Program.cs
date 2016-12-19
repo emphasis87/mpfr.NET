@@ -87,27 +87,12 @@ namespace mpfrNET.TestApp
 		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
 		public static extern uint GetModuleFileName(IntPtr hModule, StringBuilder lpFilename, [MarshalAs(UnmanagedType.U4)]int nSize);
 
-		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+		[DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Ansi)]
 		public static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
 
 		private static void Main(string[] args)
 		{
 			Console.WriteLine("MAIN");
-			var mpfr = GetModuleHandle("libmpfr-4");
-			if (mpfr == IntPtr.Zero)
-			{
-				Console.WriteLine("LOADLIBRARY");
-				mpfr = LoadLibrary("libmpfr-4");
-			}
-
-			if (mpfr == IntPtr.Zero)
-				Console.WriteLine("UNABLE TO LOAD libmpfr-4");
-			var fileName = new StringBuilder(255);
-			Console.WriteLine("GETMODULEFILENAME");
-			GetModuleFileName(mpfr, fileName, fileName.Capacity);
-
-			var path = fileName.ToString();
-			Console.WriteLine(path);
 
 			Console.WriteLine($"{(Environment.Is64BitProcess ? "x64" : "x32")}");
 
@@ -128,13 +113,19 @@ namespace mpfrNET.TestApp
 			MPFRLibrary.mpfr_get_str(sb, ref expptr, 10, 0, value, (int)Rounding.AwayFromZero);
 			Console.WriteLine(sb.ToString());
 
-			var gv = GetProcAddress(mpfr, "mpfr_get_version");
-			if (gv == IntPtr.Zero)
-				Console.WriteLine("NO mpfr_get_version");
-
-			var v = MPFRLibrary.mpfr_get_version();
-			var ve = Marshal.PtrToStringAnsi(v);
+			var ve = MPFRLibrary.mpfr_get_version();
 			Console.WriteLine(ve);
+
+			var mpfr = GetModuleHandle("libmpfr-4");
+			while (mpfr != IntPtr.Zero)
+			{
+				var fn = new StringBuilder(1024);
+				GetModuleFileName(mpfr, fn, fn.Capacity);
+				var path = fn.ToString();
+				Console.WriteLine(path);
+				FreeLibrary(mpfr);
+				mpfr = GetModuleHandle("libmpfr-4");
+			}
 		}
 		/*
 		private static void BD()

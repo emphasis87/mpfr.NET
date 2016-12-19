@@ -14,8 +14,6 @@ namespace System.Numerics.MPFR
 {
 	public partial class MPFRLibrary
 	{
-		public const string Name = "libmpfr-4";
-
 <#
 	var client = new WebClient ();
 
@@ -79,7 +77,7 @@ namespace System.Numerics.MPFR
 		def = elipsis.Replace(def, "IntPtr args");
 		def = va_list.Replace(def, "IntPtr");
 
-		WriteLine("[DllImport(Name, CallingConvention = CallingConvention.Cdecl)]");
+		WriteLine("[DllImport(FileName, CallingConvention = CallingConvention.Cdecl)]");
 
 		if (char_ptr_start.IsMatch(def)){
 			WriteLine("[return: MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(CStringMarshaler))]");

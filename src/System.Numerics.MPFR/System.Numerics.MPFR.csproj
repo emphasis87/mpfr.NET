@@ -47,6 +47,7 @@
     <Compile Include="BigFloat.ctors.cs" />
     <Compile Include="BigFloatExtensions.cs" />
     <Compile Include="CStringMarshaler.cs" />
+    <Compile Include="Helpers.cs" />
     <Compile Include="ModuleInitializer.cs" />
     <Compile Include="MPFRLibrary.cs" />
     <Compile Include="MPFRLibrary.generated.cs">
@@ -56,8 +57,18 @@
     </Compile>
     <Compile Include="mpfr_struct.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Rounding.cs" />
-    <Compile Include="VersionResolution.cs" />
+    <Compile Include="Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="NativeLoadingPreferences.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="FodyWeavers.xml" />
@@ -70,7 +81,26 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Settings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="libs\x64\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\libs\mpfr\x32\libmpfr-4.dll">
+      <Link>libs\x32\libmpfr-4.dll</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\libs\nuget\Fody.1.29.2\build\dotnet\Fody.targets" Condition="Exists('..\..\libs\nuget\Fody.1.29.2\build\dotnet\Fody.targets')" />
@@ -80,7 +110,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\libs\nuget\Fody.1.29.2\build\dotnet\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\libs\nuget\Fody.1.29.2\build\dotnet\Fody.targets'))" />
   </Target>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

@@ -1,97 +1,227 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Diagnostics;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Numerics.MPFR;
 
 /// <summary>
-/// Used by the ModuleInit. All code inside the Initialize method is ran as soon as the assembly is loaded.
+/// Used by the ModuleInit. All code inside the Initialize method is run as soon as the assembly is loaded.
 /// </summary>
 public static class ModuleInitializer
 {
+	private static string AssemblyLocation { get; set; }
+	private static IDictionary<string, string> Libraries { get; } = new ConcurrentDictionary<string, string>();
+	private static HashSet<NativeLoadingPreferences> LoadingPreferences { get; } = new HashSet<NativeLoadingPreferences>();
+	private static bool PreferDefault => LoadingPreferences.Contains(NativeLoadingPreferences.PreferDefault);
+	private static bool PreferCustom => LoadingPreferences.Contains(NativeLoadingPreferences.PreferCustom);
+	private static bool PreferLatest => LoadingPreferences.Contains(NativeLoadingPreferences.PreferLatest);
+
 	/// <summary>
 	/// Initializes the module.
 	/// </summary>
 	public static void Initialize()
 	{
-		LoadDefaultLibrary();
+		AssemblyLocation = Path.GetDirectoryName(typeof(ModuleInitializer).Assembly.Location);
+
+		SetupLoadingPreferences();
+		if (LoadingPreferences.Contains(NativeLoadingPreferences.Disable))
+		{
+			//TODO Log preference
+			return;
+		}
+
+		var library = FindLibrary();
+		if (library != null)
+		{
+			Console.WriteLine($"Using library: '{library}'");
+			LoadLibraryEx(library, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
+		}
 	}
 
-	private static void LoadDefaultLibrary()
+	private static void SetupLoadingPreferences()
 	{
-		var shouldFreeMpfr = false;
-		IntPtr mpfr = IntPtr.Zero;
+		var nlp = new HashSet<string>(Enum.GetNames(typeof(NativeLoadingPreferences)));
+		LoadingPreferences.UnionWith(
+			Settings.Default.NativeLoadingPreferences.Split(',')
+				.Select(x => x.Trim())
+				.Where(x => nlp.Contains(x))
+				.Select(x => (NativeLoadingPreferences)Enum.Parse(typeof(NativeLoadingPreferences), x)));
+
+		if (LoadingPreferences.Count == 0)
+			LoadingPreferences.UnionWith(new[]
+			{
+				NativeLoadingPreferences.PreferDefault,
+				NativeLoadingPreferences.PreferLatest,
+				NativeLoadingPreferences.IgnoreUnversioned
+			});
+
+		if (PreferDefault && PreferCustom)
+		{
+			// TODO log
+			LoadingPreferences.Remove(NativeLoadingPreferences.PreferCustom);
+		}
+
+		if (!PreferDefault && !PreferCustom)
+		{
+			// TODO log
+			LoadingPreferences.Add(NativeLoadingPreferences.PreferDefault);
+		}
+	}
+
+	private static string FindLibrary()
+	{
+		IntPtr mpfr = GetModuleHandle(MPFRLibrary.FileName);
+		if (mpfr != IntPtr.Zero)
+		{
+			//TODO log "nothing can be done, since it is not safe to unload"
+			return null;
+		}
+
+		InstallInternalLibrary();
+
+		var path = Environment.Is64BitProcess
+			? (Settings.Default.x64_NativePath + ";x64")
+			: (Settings.Default.x32_NativePath + ";x32");
+		var paths = path.Split(';').Clean().Distinct()
+			.Select(x => x.ResolvePath(AssemblyLocation)).ToList();
+
+		if (PreferDefault)
+			paths.Insert(0, null);
+		else if (PreferCustom)
+			paths.Add(null);
+
+		if (!PreferLatest)
+		{
+			var first = paths.Select(PreloadLibrary).FirstOrDefault();
+			return first;
+		}
+
+		var libs = paths.Select(PreloadLibrary).ToArray();
+		var latest = libs.Clean()
+			.OrderByDescending(x => Version.Parse(Libraries.Retrieve(x)))
+			.FirstOrDefault();
+
+		return latest;
+	}
+
+	private static string PreloadLibrary(string dir)
+	{
+		if (dir == null)
+			return PreloadLibrary();
+
+		var mpfr = IntPtr.Zero;
 		try
 		{
-			var asm = typeof(ModuleInitializer).Assembly;
-			var lib = Path.Combine(
-				Path.GetDirectoryName(asm.Location),
-				Environment.Is64BitProcess ? "x64" : "x32",
-				"libmpfr-4.dll");
-			mpfr = LoadLibraryEx(lib, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
-			//mpfr = LoadLibrary("libmpfr-4");
+			var path = Path.Combine(dir, MPFRLibrary.FileName);
+			mpfr = LoadLibraryEx(path, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
 			if (mpfr == IntPtr.Zero)
 			{
-				Console.WriteLine("Unable to find libmpfr-4 in the default search path.");
-				return;
+				// TODO log
+				return null;
 			}
-			shouldFreeMpfr = true;
 
-			string path = null;
-			var module = GetModuleHandle("libmpfr-4");
-			if (module != IntPtr.Zero)
+			var version = GetVersion(mpfr);
+			if (LoadingPreferences.Contains(NativeLoadingPreferences.IgnoreUnversioned) && version == null)
 			{
-				Console.WriteLine("ModuleName:");
-				var fileName = new StringBuilder(255);
-				GetModuleFileName(module, fileName, fileName.Capacity);
-
-				path = fileName.ToString();
-				Console.WriteLine(path);
-
-				if (File.Exists(path))
-				{
-					var version = FileVersionInfo.GetVersionInfo(path);
-					if (version != null && !string.IsNullOrWhiteSpace(version.FileVersion))
-						Console.WriteLine(version.FileVersion);
-				}
+				// TODO log
+				return null;
 			}
 
-			var v = MPFRLibrary.mpfr_get_version();
-			var ve = Marshal.PtrToStringAnsi(v);
-			Console.WriteLine(ve);
+			Libraries[path] = version;
 
-			var gv = GetProcAddress(mpfr, "mpfr_get_version");
-			if (gv == IntPtr.Zero)
-			{
-				var err = new Win32Exception(Marshal.GetLastWin32Error()).Message;
-				Console.WriteLine(err);
-				Console.WriteLine($"Unable to find mpfr_get_version in { path ?? "libmpfr-4 from the default search path"}.");
-				return;
-			}
-
-			var getVersion = (mpfr_get_version)Marshal.GetDelegateForFunctionPointer(gv, typeof(mpfr_get_version));
-			var v2 = getVersion();
-			Console.WriteLine("DYNAMIC Version " + v2);
+			return path;
+		}
+		catch (Exception ex)
+		{
+			// TODO log
+			return null;
 		}
 		finally
 		{
-			if (shouldFreeMpfr && mpfr != IntPtr.Zero)
-			{/*
-				while (mpfr != IntPtr.Zero)
-				{
-					Console.WriteLine("FREE");
-					var fileName = new StringBuilder(255);
-					GetModuleFileName(mpfr, fileName, fileName.Capacity);
-
-					var path = fileName.ToString();
-					Console.WriteLine(path);
-					FreeLibrary(mpfr);
-					mpfr = GetModuleHandle("libmpfr-4");
-				}*/
-			}
+			if (mpfr != IntPtr.Zero)
+				FreeLibrary(mpfr);
 		}
+	}
+
+	private static string PreloadLibrary()
+	{
+		var mpfr = IntPtr.Zero;
+		try
+		{
+			mpfr = LoadLibrary(MPFRLibrary.FileName);
+			if (mpfr == IntPtr.Zero)
+			{
+				// TODO log
+				return null;
+			}
+
+			var version = GetVersion(mpfr);
+			if (LoadingPreferences.Contains(NativeLoadingPreferences.IgnoreUnversioned) && version == null)
+			{
+				// TODO log
+				return null;
+			}
+
+			var path = GetLocation(mpfr);
+			Libraries[path] = version;
+
+			return path;
+		}
+		catch (Exception ex)
+		{
+			// TODO log
+			return null;
+		}
+		finally
+		{
+			if (mpfr != IntPtr.Zero)
+				FreeLibrary(mpfr);
+		}
+	}
+
+	private static string GetVersion(IntPtr mpfr)
+	{
+		var gvAddr = GetProcAddress(mpfr, "mpfr_get_version");
+		if (gvAddr == IntPtr.Zero)
+		{
+			/* //TODO log
+			var err = new Win32Exception(Marshal.GetLastWin32Error()).Message;
+			*/
+			return null;
+		}
+
+		var getVersion = (mpfr_get_version)Marshal.GetDelegateForFunctionPointer(gvAddr, typeof(mpfr_get_version));
+		var version = getVersion();
+		return version;
+	}
+
+	private static string GetLocation(IntPtr mpfr)
+	{
+		var sb = new StringBuilder(1024);
+		var result = GetModuleFileName(mpfr, sb, sb.Capacity);
+		return sb.ToString();
+	}
+
+	private static void InstallInternalLibrary()
+	{
+		var dir = Path.Combine(AssemblyLocation, Environment.Is64BitProcess ? "x64" : "x32");
+		if (!Directory.Exists(dir))
+			Directory.CreateDirectory(dir);
+
+		var bytes = Environment.Is64BitProcess ? Resources.x64_libmpfr_4 : Resources.x32_libmpfr_4;
+		var path = Path.Combine(dir, MPFRLibrary.FileName + ".dll");
+		if (File.Exists(path))
+		{
+			if (new FileInfo(path).Length == bytes.Length)
+				return;
+
+			//TODO log overwrite warning
+		}
+
+		File.WriteAllBytes(path, bytes);
 	}
 
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
