@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,11 +12,14 @@ using System.Numerics.MPFR;
 public static class ModuleInitializer
 {
 	private static string AssemblyLocation { get; set; }
-	private static IDictionary<string, string> Libraries { get; } = new ConcurrentDictionary<string, string>();
+	private static ICollection<IntPtr> Modules { get; } = new List<IntPtr>();
+	private static IDictionary<IntPtr, string> Libraries { get; } = new Dictionary<IntPtr, string>();
+	private static IDictionary<IntPtr, string> Versions { get; } = new Dictionary<IntPtr, string>();
 	private static HashSet<NativeLoadingPreferences> LoadingPreferences { get; } = new HashSet<NativeLoadingPreferences>();
 	private static bool PreferDefault => LoadingPreferences.Contains(NativeLoadingPreferences.PreferDefault);
 	private static bool PreferCustom => LoadingPreferences.Contains(NativeLoadingPreferences.PreferCustom);
 	private static bool PreferLatest => LoadingPreferences.Contains(NativeLoadingPreferences.PreferLatest);
+	private static bool IgnoreUnversioned => LoadingPreferences.Contains(NativeLoadingPreferences.IgnoreUnversioned);
 
 	/// <summary>
 	/// Initializes the module.
@@ -36,8 +38,13 @@ public static class ModuleInitializer
 		var library = FindLibrary();
 		if (library != null)
 		{
-			Console.WriteLine($"Using library: '{library}'");
-			LoadLibraryEx(library, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
+			// Console.WriteLine($"Using library: '{library}'");
+			var path = Path.Combine(Path.GetDirectoryName(library), Path.GetFileNameWithoutExtension(library));
+			var mpfr = LoadLibraryEx(path, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
+			if (mpfr == IntPtr.Zero)
+			{
+				//Console.WriteLine($"Unable to load: '{path}'");
+			}
 		}
 	}
 
@@ -100,77 +107,50 @@ public static class ModuleInitializer
 		}
 
 		var libs = paths.Select(PreloadLibrary).ToArray();
-		var latest = libs.Clean()
-			.OrderByDescending(x => Version.Parse(Libraries.Retrieve(x)))
+		var module = Modules
+			.OrderByDescending(x => Version.Parse(Versions[x]))
 			.FirstOrDefault();
 
+		var latest = Libraries[module];
 		return latest;
 	}
 
 	private static string PreloadLibrary(string dir)
 	{
-		if (dir == null)
-			return PreloadLibrary();
-
 		var mpfr = IntPtr.Zero;
 		try
 		{
-			var path = Path.Combine(dir, MPFRLibrary.FileName);
-			mpfr = LoadLibraryEx(path, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
+			if (dir == null)
+				mpfr = LoadLibrary(MPFRLibrary.FileName);
+			else
+				mpfr = LoadLibraryEx(Path.Combine(dir, MPFRLibrary.FileName), IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
+
 			if (mpfr == IntPtr.Zero)
 			{
 				// TODO log
 				return null;
 			}
 
-			var version = GetVersion(mpfr);
-			if (LoadingPreferences.Contains(NativeLoadingPreferences.IgnoreUnversioned) && version == null)
+			if (Libraries.ContainsKey(mpfr))
 			{
-				// TODO log
 				return null;
 			}
 
-			Libraries[path] = version;
-
-			return path;
-		}
-		catch (Exception ex)
-		{
-			// TODO log
-			return null;
-		}
-		finally
-		{
-			if (mpfr != IntPtr.Zero)
-				FreeLibrary(mpfr);
-		}
-	}
-
-	private static string PreloadLibrary()
-	{
-		var mpfr = IntPtr.Zero;
-		try
-		{
-			mpfr = LoadLibrary(MPFRLibrary.FileName);
-			if (mpfr == IntPtr.Zero)
-			{
-				// TODO log
-				return null;
-			}
-
-			var version = GetVersion(mpfr);
-			if (LoadingPreferences.Contains(NativeLoadingPreferences.IgnoreUnversioned) && version == null)
-			{
-				// TODO log
-				return null;
-			}
-
+			Modules.Add(mpfr);
 			var path = GetLocation(mpfr);
-			Libraries[path] = version;
+			var version = GetVersion(mpfr);
+			if (IgnoreUnversioned && version == null)
+			{
+				// TODO log
+				return null;
+			}
+
+			Libraries[mpfr] = path;
+			Versions[mpfr] = version;
 
 			return path;
 		}
-		catch (Exception ex)
+		catch
 		{
 			// TODO log
 			return null;

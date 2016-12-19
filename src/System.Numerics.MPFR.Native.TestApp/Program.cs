@@ -116,6 +116,7 @@ namespace mpfrNET.TestApp
 			var ve = MPFRLibrary.mpfr_get_version();
 			Console.WriteLine(ve);
 
+			/*
 			var mpfr = GetModuleHandle("libmpfr-4");
 			while (mpfr != IntPtr.Zero)
 			{
@@ -126,6 +127,7 @@ namespace mpfrNET.TestApp
 				FreeLibrary(mpfr);
 				mpfr = GetModuleHandle("libmpfr-4");
 			}
+			*/
 		}
 		/*
 		private static void BD()
