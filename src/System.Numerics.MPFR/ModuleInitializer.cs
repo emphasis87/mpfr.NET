@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -100,6 +101,7 @@ public static class ModuleInitializer
 
 		private IntPtr PreloadLibrary(string dir)
 		{
+			Console.WriteLine($"Preloading: {dir}");
 			var mpfr = IntPtr.Zero;
 			try
 			{
@@ -110,9 +112,11 @@ public static class ModuleInitializer
 
 				if (mpfr == IntPtr.Zero)
 				{
+					Console.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
 					// TODO log
 					return IntPtr.Zero;
 				}
+				Console.WriteLine($" SUCCESS");
 
 				if (Libraries.ContainsKey(mpfr))
 				{
@@ -122,6 +126,7 @@ public static class ModuleInitializer
 				Modules.Add(mpfr);
 				var path = GetLocation(mpfr);
 				var version = GetVersion(mpfr);
+				Console.WriteLine($" {version}");
 				if (IgnoreUnversioned && version == null)
 				{
 					// TODO log

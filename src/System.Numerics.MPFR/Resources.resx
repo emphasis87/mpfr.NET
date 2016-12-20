@@ -122,6 +122,6 @@
     <value>..\..\libs\mpfr\x32\libmpfr-4.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="x64_libmpfr_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\libs\mpfr\x32\libmpfr-4.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>..\..\libs\mpfr\x64\libmpfr-4.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

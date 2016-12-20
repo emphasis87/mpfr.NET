@@ -96,25 +96,32 @@ namespace mpfrNET.TestApp
 
 			Console.WriteLine($"{(Environment.Is64BitProcess ? "x64" : "x32")}");
 
-			//BD();
-			for (int i = 0; i < 5; i++)
+			try
 			{
-				var flt = new BigFloat("1.0");
-				flt.Neg();
-				Console.WriteLine(flt.ToString());
+				//BD();
+				for (int i = 0; i < 5; i++)
+				{
+					var flt = new BigFloat("1.0");
+					flt.Neg();
+					Console.WriteLine(flt.ToString());
+				}
+
+				var value = new mpfr_struct();
+				MPFRLibrary.mpfr_init(value);
+				MPFRLibrary.mpfr_set_str(value, "10", 10, (int)Rounding.AwayFromZero);
+				MPFRLibrary.mpfr_log(value, value, (int)Rounding.AwayFromZero);
+				var sb = new StringBuilder(100);
+				long expptr = 0;
+				MPFRLibrary.mpfr_get_str(sb, ref expptr, 10, 0, value, (int)Rounding.AwayFromZero);
+				Console.WriteLine(sb.ToString());
+
+				var ve = MPFRLibrary.mpfr_get_version();
+				Console.WriteLine(ve);
 			}
-
-			var value = new mpfr_struct();
-			MPFRLibrary.mpfr_init(value);
-			MPFRLibrary.mpfr_set_str(value, "10", 10, (int)Rounding.AwayFromZero);
-			MPFRLibrary.mpfr_log(value, value, (int)Rounding.AwayFromZero);
-			var sb = new StringBuilder(100);
-			long expptr = 0;
-			MPFRLibrary.mpfr_get_str(sb, ref expptr, 10, 0, value, (int)Rounding.AwayFromZero);
-			Console.WriteLine(sb.ToString());
-
-			var ve = MPFRLibrary.mpfr_get_version();
-			Console.WriteLine(ve);
+			catch (DllNotFoundException ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
 
 			/*
 			var mpfr = GetModuleHandle("libmpfr-4");

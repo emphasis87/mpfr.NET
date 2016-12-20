@@ -17,4 +17,50 @@ It is pretty straightforward to build a C++ CLR consumable .dll of mpfr library.
 
 5) Once having the libmpfr-4.dll and libmpfr-4.lib files link them in C++ CLR project.
     Properties -> Configuration Properties | C/C++ | General | Additional Include Directories - add a directory with .h header files
-    Properties -> Configuration Properties | Linker | Input | Additional Dependencies - add a path to the .lib file                                                                                                                                
+    Properties -> Configuration Properties | Linker | Input | Additional Dependencies - add a path to the .lib file
+
+### MSys2/mingw64
+
+	in msys2 terminal:
+	pacman -S base-devel mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
+
+### x32 libmpfr-4.dll using MSys2/mingw64
+
+	cd /c/download/
+
+	pacman -S lzip
+    tar --lzip -xvf gmp-*.tar.lz
+
+	in msys2/mingw64 terminal:
+	in gmp folder:
+	./configure --host=i686-w64-mingw32 --enable-shared --disable-static
+	make
+	make check
+	make install
+
+	in mpfr folder:
+    ./configure --host=i686-w64-mingw32 --enable-shared --disable-static --enable-thread-safe
+	make
+	make check
+
+### x64 libmpfr-4.dll using MSys2/mingw64
+
+	in msys2 terminal:
+	pacman -S base-devel mingw-w64-x86_64-toolchain
+
+	cd /c/download/
+
+	pacman -S lzip
+    tar --lzip -xvf gmp-*.tar.lz
+
+	in msys2/mingw64 terminal:
+	in gmp folder:
+	./configure --host=x86_64-w64-mingw32 --enable-shared --disable-static
+	make
+	make check
+	make install
+
+	in mpfr folder:
+    ./configure --host=x86_64-w64-mingw32 --enable-shared --disable-static --enable-thread-safe
+	make
+	make check
