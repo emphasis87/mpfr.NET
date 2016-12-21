@@ -58,7 +58,7 @@ public static class ModuleInitializer
 					//Console.WriteLine($"Unable to load: '{path}'");
 				}
 
-				MPFRLibrary.Version = Versions[mpfr];
+				MPFRLibrary.Version = Versions[library];
 				MPFRLibrary.Location = path;
 			}
 		}
