@@ -100,12 +100,12 @@
 		</EmbeddedResource>
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\..\libs\mpfr\x64\libmpfr-4.dll">
+		<None Include="..\..\libs\native\x64\bin\libmpfr-4.dll">
 			<Link>libs\x64\libmpfr-4.dll</Link>
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\..\libs\mpfr\x32\libmpfr-4.dll">
+		<None Include="..\..\libs\native\x32\bin\libmpfr-4.dll">
 			<Link>libs\x32\libmpfr-4.dll</Link>
 		</None>
 	</ItemGroup>

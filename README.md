@@ -22,45 +22,41 @@ It is pretty straightforward to build a C++ CLR consumable .dll of mpfr library.
 ### MSys2/mingw64
 
 	in msys2 terminal:
-	pacman -S base-devel mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain
+	pacman -S base-devel mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain lzip
 
 ### x32 libmpfr-4.dll using MSys2/mingw64
 
 	cd /c/download/
 
-	pacman -S lzip
     tar --lzip -xvf gmp-*.tar.lz
 
 	in msys2/mingw64 terminal:
 	in gmp folder:
-	./configure --host=i686-w64-mingw32 --enable-shared --disable-static
+	./configure --prefix=/c/libs/x32 --enable-shared --disable-static
 	make
 	make check
 	make install
 
 	in mpfr folder:
-    ./configure --host=i686-w64-mingw32 --enable-shared --disable-static --enable-thread-safe
+    ./configure --prefix=/c/libs/x32 --enable-shared --disable-static --enable-thread-safe --with-gmp=/c/libs/x32
 	make
 	make check
+	make install
 
 ### x64 libmpfr-4.dll using MSys2/mingw64
 
 	in msys2 terminal:
-	pacman -S base-devel mingw-w64-x86_64-toolchain
 
 	cd /c/download/
 
-	pacman -S lzip
-    tar --lzip -xvf gmp-*.tar.lz
-
 	in msys2/mingw64 terminal:
 	in gmp folder:
-	./configure --host=x86_64-w64-mingw32 --enable-shared --disable-static
+	./configure --prefix=/c/libs/x64 --enable-shared --disable-static
 	make
 	make check
 	make install
 
 	in mpfr folder:
-    ./configure --host=x86_64-w64-mingw32 --enable-shared --disable-static --enable-thread-safe
+    ./configure --prefix=/c/libs/x64 --enable-shared --disable-static --enable-thread-safe --with-gmp=/c/libs/x64
 	make
 	make check
