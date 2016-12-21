@@ -24,7 +24,7 @@
 		IgnoreUnversioned,
 
 		/// <summary>
-		/// Disables any strategies to load native libraries and uses the default PInvoke mechanism.
+		/// Disables any strategies to distribute and load native libraries and uses the default PInvoke mechanism.
 		/// </summary>
 		Disable,
 	}

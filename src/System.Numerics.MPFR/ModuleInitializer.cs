@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Numerics.MPFR;
+using System.Reflection;
+using System.Text.RegularExpressions;
 
 /// <summary>
 /// Used by the ModuleInit. All code inside the Initialize method is run as soon as the assembly is loaded.
@@ -99,7 +100,7 @@ public static class ModuleInitializer
 
 		private string PreloadLibrary(string dir)
 		{
-			Console.WriteLine($"Preloading: {dir}");
+			//Console.WriteLine($"Preloading: {dir}");
 			var mpfr = IntPtr.Zero;
 			try
 			{
@@ -110,20 +111,19 @@ public static class ModuleInitializer
 
 				if (mpfr == IntPtr.Zero)
 				{
-					Console.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+					//Console.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
 					// TODO log
 					return null;
 				}
-				Console.WriteLine($" SUCCESS");
 
 				var path = GetLocation(mpfr);
 				Modules.Add(path);
 
 				var version = GetVersion(mpfr);
-				Console.WriteLine($" {version}");
+				//Console.WriteLine($" {version}");
 				if (IgnoreUnversioned && version == null)
 				{
-					Console.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+					//Console.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
 					return null;
 				}
 
@@ -148,17 +148,31 @@ public static class ModuleInitializer
 			if (!Directory.Exists(dir))
 				Directory.CreateDirectory(dir);
 
-			var bytes = Environment.Is64BitProcess ? Resources.x64_libmpfr_4 : Resources.x32_libmpfr_4;
-			var path = Path.Combine(dir, MPFRLibrary.FileName + ".dll");
-			if (File.Exists(path))
+			var resx = Environment.Is64BitProcess
+				? typeof(System.Numerics.MPFR.NativeLibs.x64.Resources)
+				: typeof(System.Numerics.MPFR.NativeLibs.x32.Resources);
+
+			var libs = resx.GetProperties(BindingFlags.Static | BindingFlags.Public)
+				.Where(x => x.Name.StartsWith("lib"))
+				.Where(x => x.PropertyType == typeof(byte[]))
+				.ToArray();
+
+			var lastUnderscore = new Regex(@"(.*)_([^_]*)", RegexOptions.Compiled);
+			foreach (var lib in libs)
 			{
-				if (new FileInfo(path).Length == bytes.Length)
-					return;
+				var name = lastUnderscore.Replace(lib.Name, "$1-$2");
+				var bytes = (byte[])lib.GetValue(null);
+				var path = Path.Combine(dir, name + ".dll");
+				if (File.Exists(path))
+				{
+					if (new FileInfo(path).Length == bytes.Length)
+						return;
 
-				//TODO log overwrite warning
+					//TODO log overwrite warning
+				}
+
+				File.WriteAllBytes(path, bytes);
 			}
-
-			File.WriteAllBytes(path, bytes);
 		}
 
 		private string GetVersion(IntPtr mpfr)

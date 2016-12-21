@@ -1,62 +1,26 @@
 # mpfr.NET
-A .NET wrapper for the mpfr C library
 
-### libmpfr-4.dll using MinGW 
+A .NET wrapper for the GNU MPFR library
 
-It is pretty straightforward to build a C++ CLR consumable .dll of mpfr library.
+    This assembly comes with prepackaged libmpfr-4.dll for x86 and x64 Windows OS along with all runtime dependencies based on msys2/mingw64 compiler.
+    <br>If you wish to compile and distribute your own, see [libmpfr-msys2-mingw64](https://github.com/emphasis87/libmpfr-msys2-mingw64) on github for a tutorial.
 
-1) Install MinGW and fetch all required packages for building C/C++ applications
+1. **Install**
 
-2) From MSys console build mpfr (make)
-    Here I encountered a little hiccup, some forking of processes failed, bud
-    retry solved it.
-    
-3) Use MS utility lib to create .lib file for libmpfr-4.dll and .def files.
+2. **Configure**
 
-4) Copy libmpfr-4.dll, libmpfr-4.lib and also mpfr.h, gmp.h (maybe gmpxx.h) to the intended destination.
+    Native dll pre-loading behavior can be configured in `configuration/applicationSettings/System.Numerics.MPFR.Settings` section in your `app.config` or `web.config`.
+    <br>Multiple options are comma-separated.
 
-5) Once having the libmpfr-4.dll and libmpfr-4.lib files link them in C++ CLR project.
-    Properties -> Configuration Properties | C/C++ | General | Additional Include Directories - add a directory with .h header files
-    Properties -> Configuration Properties | Linker | Input | Additional Dependencies - add a path to the .lib file
+  * [NativeLoadingPreferences](https://github.com/emphasis87/mpfr.NET/blob/master/src/System.Numerics.MPFR/NativeLoadingPreferences.cs):
 
-### MSys2/mingw64
+    | Option              | Meaning |
+    | ------------------- | ------- |
+    | `PreferDefault`     | Prefer a library found by the default library search mechanism |
+    | `PreferCustom`      | Prefer the library shipped internally or any other specified in settings |
+    | `PreferLatest`      | Prefer a library with the highest version |
+    | `IgnoreUnversioned` | Ignore any library found that does not provide its version information |
+    | `Disable`           | Disables any strategies to distribute and load native libraries and uses the default PInvoke mechanism |
 
-	in msys2 terminal:
-	pacman -S base-devel mingw-w64-i686-toolchain mingw-w64-x86_64-toolchain lzip
-
-### x32 libmpfr-4.dll using MSys2/mingw64
-
-	cd /c/download/
-
-    tar --lzip -xvf gmp-*.tar.lz
-
-	in msys2/mingw64 terminal:
-	in gmp folder:
-	./configure --prefix=/c/libs/x32 --enable-shared --disable-static
-	make
-	make check
-	make install
-
-	in mpfr folder:
-    ./configure --prefix=/c/libs/x32 --enable-shared --disable-static --enable-thread-safe --with-gmp=/c/libs/x32
-	make
-	make check
-	make install
-
-### x64 libmpfr-4.dll using MSys2/mingw64
-
-	in msys2 terminal:
-
-	cd /c/download/
-
-	in msys2/mingw64 terminal:
-	in gmp folder:
-	./configure --prefix=/c/libs/x64 --enable-shared --disable-static
-	make
-	make check
-	make install
-
-	in mpfr folder:
-    ./configure --prefix=/c/libs/x64 --enable-shared --disable-static --enable-thread-safe --with-gmp=/c/libs/x64
-	make
-	make check
+    If both `PreferDefault` and `PreferCustom` are specified, only `PreferDefault` is used.
+    The default configuration is `PreferCustom,PreferLatest,IgnoreUnversioned`.
