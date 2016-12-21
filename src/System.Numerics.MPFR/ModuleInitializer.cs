@@ -25,9 +25,8 @@ public static class ModuleInitializer
 	{
 		private string AssemblyLocation { get; set; }
 
-		private ICollection<IntPtr> Modules { get; } = new List<IntPtr>();
-		private IDictionary<IntPtr, string> Libraries { get; } = new Dictionary<IntPtr, string>();
-		private IDictionary<IntPtr, string> Versions { get; } = new Dictionary<IntPtr, string>();
+		private ICollection<string> Modules { get; } = new List<string>();
+		private IDictionary<string, string> Versions { get; } = new Dictionary<string, string>();
 
 		private HashSet<NativeLoadingPreferences> LoadingPreferences { get; } = new HashSet<NativeLoadingPreferences>();
 		private bool PreferDefault => LoadingPreferences.Contains(NativeLoadingPreferences.PreferDefault);
@@ -48,10 +47,9 @@ public static class ModuleInitializer
 			}
 
 			var library = FindLibrary();
-			if (library != IntPtr.Zero)
+			if (library != null)
 			{
-				var path = Libraries[library];
-				path = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path));
+				var path = Path.Combine(Path.GetDirectoryName(library), Path.GetFileNameWithoutExtension(library));
 				var mpfr = LoadLibraryEx(path, IntPtr.Zero, LoadLibraryFlags.LOAD_WITH_ALTERED_SEARCH_PATH);
 				if (mpfr == IntPtr.Zero)
 				{
@@ -63,13 +61,13 @@ public static class ModuleInitializer
 			}
 		}
 
-		private IntPtr FindLibrary()
+		private string FindLibrary()
 		{
 			IntPtr mpfr = GetModuleHandle(MPFRLibrary.FileName);
 			if (mpfr != IntPtr.Zero)
 			{
 				//TODO log "nothing can be done, since it is not safe to unload"
-				return IntPtr.Zero;
+				return null;
 			}
 
 			InstallInternalLibrary();
@@ -99,7 +97,7 @@ public static class ModuleInitializer
 			return module;
 		}
 
-		private IntPtr PreloadLibrary(string dir)
+		private string PreloadLibrary(string dir)
 		{
 			Console.WriteLine($"Preloading: {dir}");
 			var mpfr = IntPtr.Zero;
@@ -114,34 +112,28 @@ public static class ModuleInitializer
 				{
 					Console.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
 					// TODO log
-					return IntPtr.Zero;
+					return null;
 				}
 				Console.WriteLine($" SUCCESS");
 
-				if (Libraries.ContainsKey(mpfr))
-				{
-					return IntPtr.Zero;
-				}
-
-				Modules.Add(mpfr);
 				var path = GetLocation(mpfr);
+				Modules.Add(path);
+
 				var version = GetVersion(mpfr);
 				Console.WriteLine($" {version}");
 				if (IgnoreUnversioned && version == null)
 				{
-					// TODO log
-					return IntPtr.Zero;
+					Console.WriteLine(new Win32Exception(Marshal.GetLastWin32Error()).Message);
+					return null;
 				}
 
-				Libraries[mpfr] = path;
-				Versions[mpfr] = version;
-
-				return mpfr;
+				Versions[path] = version;
+				return path;
 			}
 			catch
 			{
 				// TODO log
-				return IntPtr.Zero;
+				return null;
 			}
 			finally
 			{
