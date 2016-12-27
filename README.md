@@ -1,18 +1,20 @@
-# mpfr.NET
+# MPFR for .NET
 
 A .NET wrapper for the GNU MPFR library
 
 1. **Install**
 
-    A nuget pre-release package is planned soon.
+    There is a nuget package available:
+    
+    `PM> Install-Package System.Numerics.MPFR`
 
-    This assembly comes with prepackaged libmpfr-4.dll for x86 and x64 Windows OS along with all runtime dependencies based on msys2/mingw64 compiler.
+    This package comes with a distribution of **libmpfr-4.dll** and its dependency **libgmp-10.dll**, both built with MSYS2/mingw64 compiler. The library **System.Numerics.MPFR.dll** which is included tries to preload those packages. Since they have to be first decompressed you will notice a few seconds pause on the first run.
+    
     If you wish to compile and distribute your own libmpfr-4.dll, see [libmpfr-msys2-mingw64](https://github.com/emphasis87/libmpfr-msys2-mingw64) on github for a tutorial.
 
 2. **Configure**
 
-    Native dll pre-loading behavior can be configured in `configuration/applicationSettings/System.Numerics.MPFR.Settings` section in your `app.config` or `web.config`.
-    Multiple options are comma-separated.
+    Native dll pre-loading behavior can be configured in `System.Numerics.MPFR.Settings` configuration section in your `app.config` or `web.config`. See an example [app.config](https://github.com/emphasis87/mpfr.NET/blob/master/src/System.Numerics.MPFR/app.config).
 
   * [NativeLoadingPreferences](https://github.com/emphasis87/mpfr.NET/blob/master/src/System.Numerics.MPFR/NativeLoadingPreferences.cs):
 
@@ -24,5 +26,6 @@ A .NET wrapper for the GNU MPFR library
     | IgnoreUnversioned | Ignore any library found that does not provide its version information |
     | Disable           | Disables any strategies to distribute and load native libraries and uses the default PInvoke mechanism |
 
-    If both `PreferDefault` and `PreferCustom` are specified, only `PreferDefault` is used.
+    Multiple options are comma-separated.
+    <br>If both `PreferDefault` and `PreferCustom` are specified, only `PreferDefault` is used.
     <br>The default configuration is `PreferCustom,PreferLatest,IgnoreUnversioned`.
