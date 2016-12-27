@@ -118,16 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="libgcc_s_seh_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\..\..\libs\native\x64\bin\libgcc_s_seh-1.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="_7zdec" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\..\libs\native\7zdec.exe;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="libgmp_10" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\..\..\libs\native\x64\bin\libgmp-10.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="libmpfr_4" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\..\..\libs\native\x64\bin\libmpfr-4.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="libwinpthread_1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\..\..\..\libs\native\x64\bin\libwinpthread-1.dll;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="mpfr_gmp" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\..\..\libs\native\mpfr_gmp.7z;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
 </root>

@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace System.Numerics.MPFR
+namespace System.Numerics.MPFR.Helpers
 {
 	internal static class Helpers
 	{

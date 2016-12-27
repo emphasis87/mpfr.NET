@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Numerics.MPFR;
-using System.Reflection;
-using System.Text.RegularExpressions;
+using System.Numerics.MPFR.Helpers;
+using System.Numerics.MPFR.Resources;
 
 /// <summary>
 /// Used by the ModuleInit. All code inside the Initialize method is run as soon as the assembly is loaded.
@@ -74,8 +75,8 @@ public static class ModuleInitializer
 			InstallInternalLibrary();
 
 			var path = Environment.Is64BitProcess
-				? (Settings.Default.x64_NativePath + ";x64")
-				: (Settings.Default.x32_NativePath + ";x32");
+				? (Settings.Default.x64_NativePath + ";mpfr_gmp/bin/x64")
+				: (Settings.Default.x32_NativePath + ";mpfr_gmp/bin/x32");
 			var paths = path.Split(';').Clean().Distinct()
 				.Select(x => x.ResolvePath(AssemblyLocation)).ToList();
 
@@ -144,35 +145,32 @@ public static class ModuleInitializer
 
 		private void InstallInternalLibrary()
 		{
-			var dir = Path.Combine(AssemblyLocation, Environment.Is64BitProcess ? "x64" : "x32");
+			var dir = Path.Combine(AssemblyLocation, "mpfr_gmp/bin", Environment.Is64BitProcess ? "x64" : "x32");
 			if (!Directory.Exists(dir))
 				Directory.CreateDirectory(dir);
 
-			var resx = Environment.Is64BitProcess
-				? typeof(System.Numerics.MPFR.NativeLibs.x64.Resources)
-				: typeof(System.Numerics.MPFR.NativeLibs.x32.Resources);
+			var libs = new[] { "libgmp-10.dll", "libmpfr-4.dll" };
+			var copy = libs.Any(x => !File.Exists(Path.Combine(dir, x)));
+			if (!copy)
+				return;
 
-			var libs = resx.GetProperties(BindingFlags.Static | BindingFlags.Public)
-				.Where(x => x.Name.StartsWith("lib"))
-				.Where(x => x.PropertyType == typeof(byte[]))
-				.ToArray();
+			var dec = Path.Combine(AssemblyLocation, "7zdec.exe");
+			var file = Path.Combine(AssemblyLocation, "mpfr_gmp.7z");
 
-			var lastUnderscore = new Regex(@"(.*)_([^_]*)", RegexOptions.Compiled);
-			foreach (var lib in libs)
+			File.WriteAllBytes(dec, Resources._7zdec);
+			File.WriteAllBytes(file, Resources.mpfr_gmp);
+
+			var info = new ProcessStartInfo("7zdec.exe")
 			{
-				var name = lastUnderscore.Replace(lib.Name, "$1-$2");
-				var bytes = (byte[])lib.GetValue(null);
-				var path = Path.Combine(dir, name + ".dll");
-				if (File.Exists(path))
-				{
-					if (new FileInfo(path).Length == bytes.Length)
-						return;
+				WorkingDirectory = AssemblyLocation,
+				Arguments = "x mpfr_gmp.7z",
+				WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+			};
+			var proc = Process.Start(info);
+			proc.WaitForExit();
 
-					//TODO log overwrite warning
-				}
-
-				File.WriteAllBytes(path, bytes);
-			}
+			File.Delete(dec);
+			File.Delete(file);
 		}
 
 		private string GetVersion(IntPtr mpfr)

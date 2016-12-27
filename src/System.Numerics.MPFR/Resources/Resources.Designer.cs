@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace System.Numerics.MPFR.NativeLibs.x32 {
+namespace System.Numerics.MPFR.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace System.Numerics.MPFR.NativeLibs.x32 {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("System.Numerics.MPFR.NativeLibs.x32.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("System.Numerics.MPFR.Resources.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -63,9 +63,9 @@ namespace System.Numerics.MPFR.NativeLibs.x32 {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] libgcc_s_dw2_1 {
+        public static byte[] _7zdec {
             get {
-                object obj = ResourceManager.GetObject("libgcc_s_dw2_1", resourceCulture);
+                object obj = ResourceManager.GetObject("_7zdec", resourceCulture);
                 return ((byte[])(obj));
             }
         }
@@ -73,29 +73,9 @@ namespace System.Numerics.MPFR.NativeLibs.x32 {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] libgmp_10 {
+        public static byte[] mpfr_gmp {
             get {
-                object obj = ResourceManager.GetObject("libgmp_10", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] libmpfr_4 {
-            get {
-                object obj = ResourceManager.GetObject("libmpfr_4", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
-        public static byte[] libwinpthread_1 {
-            get {
-                object obj = ResourceManager.GetObject("libwinpthread_1", resourceCulture);
+                object obj = ResourceManager.GetObject("mpfr_gmp", resourceCulture);
                 return ((byte[])(obj));
             }
         }

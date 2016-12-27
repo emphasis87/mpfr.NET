@@ -48,17 +48,7 @@
     </Compile>
     <Compile Include="BigFloat.cs" />
     <Compile Include="CStringMarshaler.cs" />
-    <Compile Include="Helpers.cs" />
-    <Compile Include="NativeLibs\x32\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="NativeLibs\x64\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
+    <Compile Include="Helpers\Helpers.cs" />
     <Compile Include="ModuleInitializer.cs" />
     <Compile Include="MPFRLibrary.cs" />
     <Compile Include="MPFRLibrary.generated.cs">
@@ -68,6 +58,11 @@
     </Compile>
     <Compile Include="mpfr_struct.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Rounding.cs" />
     <Compile Include="Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -91,7 +86,9 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
     <None Include="Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
@@ -99,42 +96,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="NativeLibs\x32\Resources.resx">
+    <EmbeddedResource Include="Resources\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="NativeLibs\x64\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\libs\native\x32\bin\libmpfr-4.dll">
-      <Link>libs\x32\libmpfr-4.dll</Link>
+    <None Include="..\..\libs\native\mpfr_gmp.7z">
+      <Link>Resources\mpfr_gmp.7z</Link>
     </None>
-    <None Include="..\..\libs\native\x32\bin\libgmp-10.dll">
-      <Link>libs\x32\libgmp-10.dll</Link>
-    </None>
-    <None Include="..\..\libs\native\x32\bin\libgcc_s_dw2-1.dll">
-      <Link>libs\x32\libgcc_s_dw2-1.dll</Link>
-    </None>
-    <None Include="..\..\libs\native\x32\bin\libwinpthread-1.dll">
-      <Link>libs\x32\libwinpthread-1.dll</Link>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\libs\native\x64\bin\libmpfr-4.dll">
-      <Link>libs\x64\libmpfr-4.dll</Link>
-    </None>
-    <None Include="..\..\libs\native\x64\bin\libgmp-10.dll">
-      <Link>libs\x64\libgmp-10.dll</Link>
-    </None>
-    <None Include="..\..\libs\native\x64\bin\libgcc_s_seh-1.dll">
-      <Link>libs\x64\libgcc_s_seh-1.dll</Link>
-    </None>
-    <None Include="..\..\libs\native\x64\bin\libwinpthread-1.dll">
-      <Link>libs\x64\libwinpthread-1.dll</Link>
+    <None Include="..\..\libs\native\7zdec.exe">
+      <Link>Resources\7zdec.exe</Link>
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

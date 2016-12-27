@@ -6,10 +6,10 @@
       <Value Profile="(Default)">PreferInternal,PreferLatest,IgnoreUnversioned</Value>
     </Setting>
     <Setting Name="x32_NativePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">x32;custom/x32</Value>
+      <Value Profile="(Default)">x32;mpfr_gmp/bin/x32</Value>
     </Setting>
     <Setting Name="x64_NativePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">x64;custom/x64</Value>
+      <Value Profile="(Default)">x64;mpfr_gmp/bin/x64</Value>
     </Setting>
   </Settings>
 </SettingsFile>

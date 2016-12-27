@@ -34,7 +34,7 @@ namespace System.Numerics.MPFR {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("x32;custom/x32")]
+        [global::System.Configuration.DefaultSettingValueAttribute("x32;mpfr_gmp/bin/x32")]
         public string x32_NativePath {
             get {
                 return ((string)(this["x32_NativePath"]));
@@ -43,7 +43,7 @@ namespace System.Numerics.MPFR {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("x64;custom/x64")]
+        [global::System.Configuration.DefaultSettingValueAttribute("x64;mpfr_gmp/bin/x64")]
         public string x64_NativePath {
             get {
                 return ((string)(this["x64_NativePath"]));
