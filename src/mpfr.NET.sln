@@ -12,6 +12,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.Numerics.MPFR", "Sys
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F94DF17D-17F8-4662-B000-01E2289A2976}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Build", "Build", "{80280845-E471-46E5-BD54-F60669866607}"
+	ProjectSection(SolutionItems) = preProject
+		..\nuget\build.cake = ..\nuget\build.cake
+		..\nuget\System.Numerics.MPFR.nuspec = ..\nuget\System.Numerics.MPFR.nuspec
+		..\nuget\System.Numerics.MPFR.symbols.nuspec = ..\nuget\System.Numerics.MPFR.symbols.nuspec
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+	<metadata>
+		<id>$id$</id>
+		<title>mpfr.NET</title>
+		<version>$version$</version>
+		<authors>Luboš Hemala</authors>
+		<owners>emphasis</owners>
+		<licenseUrl>https://github.com/emphasis87/mpfr.NET/blob/master/LICENSE.md</licenseUrl>
+		<projectUrl>https://github.com/emphasis87/mpfr.NET</projectUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<description>A .NET wrapper for the GNU MPFR library</description>
+		<releaseNotes>A pre-release package with basic functionality</releaseNotes>
+		<copyright>Copyright (c) Luboš Hemala</copyright>
+		<tags>mpfr numerics multi arbitrary precision</tags>
+	</metadata>
+
+	<files>
+		<file src="..\src\bin\$id$\$platform$\$configuration$\*.dll" target="lib" />
+		<file src="..\src\bin\$id$\$platform$\$configuration$\*.pdb" target="lib" />
+		<file src="..\src\bin\$id$\$platform$\$configuration$\*.xml" target="lib" />
+		<file src="..\src\$id$\**\*.cs" target="src" />
+	</files>
+</package>

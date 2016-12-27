@@ -5,4 +5,7 @@ libs/nuget/
 .vs/
 *.db
 *.opendb
+*.log
 *.user
+nuget/packages
+nuget/tools
