@@ -12,7 +12,18 @@ A .NET wrapper for the GNU MPFR library
     
     If you wish to compile and distribute your own libmpfr-4.dll, see [libmpfr-msys2-mingw64](https://github.com/emphasis87/libmpfr-msys2-mingw64) on github for a tutorial.
 
-2. **Configure**
+2. **How to use**
+
+    I wanted to have the package up and running as soon as possible, so there definitely will be some bugs. Please report them, as well as any other helpful suggestions.
+    
+    The main classes of note are:
+    
+    | Class       | Description |
+    | ----------- | ----------- |
+    | MPFRLibrary | Contains calls that are merely passed to the underlying C functions |
+    | BigFloat    | Provides an abstraction over MPFRLibrary with initialization and cleanup of resources |
+
+3. **Configure**
 
     Native dll pre-loading behavior can be configured in `System.Numerics.MPFR.Settings` configuration section in your `app.config` or `web.config`. See an example [app.config](https://github.com/emphasis87/mpfr.NET/blob/master/src/System.Numerics.MPFR/app.config).
 
