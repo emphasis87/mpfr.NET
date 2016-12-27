@@ -22,6 +22,30 @@ A .NET wrapper for the GNU MPFR library
     | ----------- | ----------- |
     | MPFRLibrary | Contains calls that are merely passed to the underlying C functions |
     | BigFloat    | Provides an abstraction over MPFRLibrary with initialization and cleanup of resources |
+    
+    An example using MPFRLibrary:
+    
+    ```csharp
+    var value = new mpfr_struct();
+    MPFRLibrary.mpfr_init(value);
+    MPFRLibrary.mpfr_set_str(value, "10", 10, (int)Rounding.AwayFromZero);
+    MPFRLibrary.mpfr_log(value, value, (int)Rounding.AwayFromZero);
+    var sb = new StringBuilder(100);
+    long expptr = 0;
+    MPFRLibrary.mpfr_get_str(sb, ref expptr, 10, 0, value, (int)Rounding.AwayFromZero);
+    
+    // Should print: 23025850929940460
+    Console.WriteLine(sb.ToString());
+    ```
+    
+    An example using BigFloat:
+    
+    ```csharp
+    var num = new BigFloat("10", precision: 100);
+    num.Log();
+    // Should print: 23025850929940456840179914546838
+    Console.WriteLine(num.ToString());
+    ```
 
 3. **Configure**
 
