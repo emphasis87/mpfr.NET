@@ -4,7 +4,7 @@ A .NET wrapper for the GNU MPFR library
 
 1. **Install**
 
-    There is a nuget package available:
+    There is a nuget package [MPFR for .NET](https://www.nuget.org/packages/System.Numerics.MPFR) available:
     
     `PM> Install-Package System.Numerics.MPFR`
 
