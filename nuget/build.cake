@@ -3,7 +3,7 @@
 public DirectoryPath GitRoot { get; } = GitFindRootFromPath(MakeAbsolute(Directory(".")));
 public FilePath Solution { get; } = Locate("mpfr.NET.sln");
 public string Configuration { get; } = "Debug";
-public string Version { get; } = "1.0.0-alpha";
+public string Version { get; } = "1.0.0";
 public string Id { get; } = "System.Numerics.MPFR";
 
 public FilePath Locate(string pattern) => GetFiles(GitRoot + "/**/" + pattern).First();
@@ -54,6 +54,8 @@ Task("Build")
   
 Task("Pack")
 	.Does(() => {
+		CreateDirectory("packages");
+
 		var properties = new Dictionary<string, string>{
 			["Id"] = Id,
 			["Configuration"] = "Debug",
@@ -68,7 +70,6 @@ Task("Pack")
 		NuGetPack($"{Id}.nuspec", settings);
 	
 		settings.Symbols = true;
-	
 		NuGetPack($"{Id}.symbols.nuspec", settings);
 	});
 
@@ -91,8 +92,8 @@ Task("Publish")
 			return;
 		}
 
-		NuGetPush(pkg.FullPath);
-		NuGetPush(sympkg.FullPath);
+		NuGetPush(pkg.FullPath, new NuGetPushSettings());
+		NuGetPush(sympkg.FullPath, new NuGetPushSettings());
 	});
   
 Task("Build+Pack")
