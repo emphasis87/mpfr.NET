@@ -160,6 +160,12 @@ namespace System.Numerics.MPFR
 			_value = v;
 		}
 
+		public static bool IsPositive(BigFloat op) => op?.IsPositive() ?? false;
+		public static bool IsNegative(BigFloat op) => op?.IsNegative() ?? false;
+
+		public bool IsPositive() => !IsNegative();
+		public bool IsNegative() => SignBit() != 0 && !IsNan();
+
 		#region Dispose
 		private bool _disposed;
 
@@ -186,19 +192,20 @@ namespace System.Numerics.MPFR
 		}
 		#endregion
 
+		internal static readonly Regex notDigitPattern = new Regex(@"^([^0-9]*)");
 		internal static readonly Regex formatPattern = new Regex(
 			@"(?:
 				(?<base>b[1-9][0-9]*)() |
 				(?<digits>d[1-9][0-9]*)() |
-				(?<point>\\.)()
+				(?<separator>\\.)()
 			){3}
 			\1\2\3",
 			RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
 		public string ToString(string format, IFormatProvider formatProvider)
 		{
-			format = format.AtLeast("b10d");
-			formatProvider = formatProvider ?? NumberFormatInfo.CurrentInfo;
+			format = format.AtLeast("b10.");
+			formatProvider = formatProvider ?? CultureInfo.CurrentUICulture;
 
 			var m = formatPattern.Match(format);
 			if (!m.Success)
@@ -212,14 +219,36 @@ namespace System.Numerics.MPFR
 			if (digits < 2)
 				throw new FormatException($"The number of digits {sbase} is not a supported format.");
 
+			var nfi = NumberFormatInfo.GetInstance(formatProvider);
+			if (IsNan())
+				return nfi.NaNSymbol;
+
+			if (IsInf())
+				return IsNegative() ? nfi.NegativeInfinitySymbol : nfi.PositiveInfinitySymbol;
+
 			var capacity = digits == 0
-				? (int)(Precision / Math.Ceiling((double)2 / sbase) + 8)
+				? (int)Math.Ceiling((decimal)Precision / sbase) + 8
 				: (int)Math.Max(digits + 2, 7);
 
 			var sb = new StringBuilder(capacity);
 			long exp = 0;
 			mpfr_get_str(sb, ref exp, sbase, digits, _value, GetRounding());
-			return sb.ToString();
+			var str = sb.ToString();
+
+			if (!m.Groups["separator"].Success)
+				return str;
+
+			var offset = 0;
+			var dm = notDigitPattern.Match(str);
+			if (dm.Success)
+				offset = dm.Groups[0].Value.Length;
+
+			var prefix = (exp <= 0 ? "0" : "");
+			var suffixLength = (int)Math.Max(1 - exp, 0);
+			var suffix = (suffixLength > 0 ? new string('0', suffixLength) : "");
+			var ins = $"{prefix}{nfi.NumberDecimalSeparator}{suffix}";
+
+			return str.Insert(offset, ins);
 		}
 
 		public override string ToString() => ToString(null, null);
