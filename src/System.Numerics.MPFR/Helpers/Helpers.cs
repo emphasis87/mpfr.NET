@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace System.Numerics.MPFR.Helpers
 {
-	internal static class Helpers
+	public static class Helpers
 	{
 		/// <summary>
 		/// Resolve the given path to a full absolute path.
@@ -49,12 +49,30 @@ namespace System.Numerics.MPFR.Helpers
 			return items?.Trim().NotVoid() ?? new string[0];
 		}
 
+		public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
+		{
+			if (action == null || items == null)
+				return;
+
+			foreach (var item in items)
+				action(item);
+		}
+
 		public static TValue Retrieve<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key)
 		{
 			if (dict == null)
 				return default(TValue);
 
 			return dict.ContainsKey(key) ? dict[key] : default(TValue);
+		}
+
+		public static T2? With<T1, T2>(this T1 source, Func<T1, T2> selector)
+			where T2 : struct
+		{
+			if (source == null || selector == null)
+				return default(T2?);
+
+			return selector(source);
 		}
 	}
 }

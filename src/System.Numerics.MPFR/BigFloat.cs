@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Numerics.MPFR.Helpers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -98,7 +100,16 @@ namespace System.Numerics.MPFR
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		/// <param name="rounding">The rounding used during <paramref name="value"/> initialization</param>
-		public BigFloat(long value, ulong precision, Rounding? rounding = null)
+		public BigFloat(int value, ulong? precision = null, Rounding? rounding = null)
+			: this((long)value, precision, rounding) { }
+
+		/// <summary>
+		/// Create a new <see cref="BigFloat"/> instance with a given <paramref name="value"/> and a <paramref name="precision"/> in bits.
+		/// </summary>
+		/// <param name="value">The underlying value</param>
+		/// <param name="precision">The underlying precision in bits</param>
+		/// <param name="rounding">The rounding used during <paramref name="value"/> initialization</param>
+		public BigFloat(long value, ulong? precision = null, Rounding? rounding = null)
 		{
 			Initialize(precision);
 			Set(this, value, rounding);
@@ -110,7 +121,7 @@ namespace System.Numerics.MPFR
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		/// <param name="rounding">The rounding used during <paramref name="value"/> initialization</param>
-		public BigFloat(ulong value, ulong precision, Rounding? rounding = null)
+		public BigFloat(ulong value, ulong? precision = null, Rounding? rounding = null)
 		{
 			Initialize(precision);
 			Set(this, value, rounding);
@@ -122,7 +133,7 @@ namespace System.Numerics.MPFR
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		/// <param name="rounding">The rounding used during <paramref name="value"/> initialization</param>
-		public BigFloat(float value, ulong precision, Rounding? rounding = null)
+		public BigFloat(float value, ulong? precision = null, Rounding? rounding = null)
 		{
 			Initialize(precision);
 			Set(this, value, rounding);
@@ -134,7 +145,7 @@ namespace System.Numerics.MPFR
 		/// <param name="value">The underlying value</param>
 		/// <param name="precision">The underlying precision in bits</param>
 		/// <param name="rounding">The rounding used during <paramref name="value"/> initialization</param>
-		public BigFloat(double value, ulong precision, Rounding? rounding = null)
+		public BigFloat(double value, ulong? precision = null, Rounding? rounding = null)
 		{
 			Initialize(precision);
 			Set(this, value, rounding);
@@ -160,11 +171,15 @@ namespace System.Numerics.MPFR
 			_value = v;
 		}
 
+		#region Functions
+
 		public static bool IsPositive(BigFloat op) => op?.IsPositive() ?? false;
 		public static bool IsNegative(BigFloat op) => op?.IsNegative() ?? false;
 
 		public bool IsPositive() => !IsNegative();
 		public bool IsNegative() => SignBit() != 0 && !IsNan();
+
+		#endregion
 
 		#region Dispose
 		private bool _disposed;
@@ -192,32 +207,49 @@ namespace System.Numerics.MPFR
 		}
 		#endregion
 
+		#region ToString
 		internal static readonly Regex notDigitPattern = new Regex(@"^([^0-9]*)");
-		internal static readonly Regex formatPattern = new Regex(
-			@"(?:
-				(?<base>b[1-9][0-9]*)() |
-				(?<digits>d[1-9][0-9]*)() |
-				(?<separator>\\.)()
-			){3}
-			\1\2\3",
+		internal static readonly Regex formatPattern = new Regex(@"
+			(?<base>b[0-9]+) |
+			(?<digits>d[0-9]+) |
+			(?<separator>[.]) |
+			(?<exponent>e)",
 			RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
-		public string ToString(string format, IFormatProvider formatProvider)
+		public string ToString(string format, IFormatProvider formatProvider = null)
 		{
 			format = format.AtLeast("b10.");
 			formatProvider = formatProvider ?? CultureInfo.CurrentUICulture;
 
+			var options = new Dictionary<string, string>();
+
+			var groups = new[] { "base", "digits", "separator", "exponent" };
 			var m = formatPattern.Match(format);
-			if (!m.Success)
-				throw new FormatException($"The format '{format}' is not supported.");
+			var pos = 0;
+			while (m.Success)
+			{
+				var group = groups.Select(x => new { Name = x, Group = m.Groups[x] }).First(x => x.Group.Success);
+				if (options.ContainsKey(group.Name))
+					throw new FormatException($"There are duplicate format options specified: '{options[group.Name]}' and '{group.Group.Value}'");
 
-			var sbase = m.Groups["base"].Success ? int.Parse(m.Groups["base"].Value.Substring(1)) : 10;
-			if (sbase > 62)
-				throw new FormatException($"The base of {sbase} is not a supported format.");
+				options[group.Name] = group.Group.Value.Substring(1);
+				pos = m.Index + m.Length;
+				m = m.NextMatch();
+			}
 
-			var digits = m.Groups["digits"].Success ? uint.Parse(m.Groups["digits"].Value.Substring(1)) : 0;
-			if (digits < 2)
-				throw new FormatException($"The number of digits {sbase} is not a supported format.");
+			if (pos < format.Length)
+				throw new FormatException($"An unsupported format: '{format}' at position {pos}.");
+
+			if (options.ContainsKey("separator") && options.ContainsKey("exponent"))
+				throw new FormatException("Use either the decimal places separator format '.' or exponent format 'e', but not both.");
+
+			var sbase = options.Retrieve("base").With(int.Parse) ?? 10;
+			if (sbase < 2 || sbase > 62)
+				throw new FormatException($"A format with the base '{sbase}' is not supported. Use a number between 2 and 62.");
+
+			var digits = options.Retrieve("digits").With(uint.Parse) ?? 0;
+			if (digits < 2 && digits != 0)
+				throw new FormatException($"A format with the number of digits '{sbase}' is not supported. Use a number greater than 2 or 0.");
 
 			var nfi = NumberFormatInfo.GetInstance(formatProvider);
 			if (IsNan())
@@ -227,7 +259,7 @@ namespace System.Numerics.MPFR
 				return IsNegative() ? nfi.NegativeInfinitySymbol : nfi.PositiveInfinitySymbol;
 
 			var capacity = digits == 0
-				? (int)Math.Ceiling((decimal)Precision / sbase) + 8
+				? (int)Math.Ceiling((decimal)Precision / (sbase - 1)) + 8
 				: (int)Math.Max(digits + 2, 7);
 
 			var sb = new StringBuilder(capacity);
@@ -235,7 +267,7 @@ namespace System.Numerics.MPFR
 			mpfr_get_str(sb, ref exp, sbase, digits, _value, GetRounding());
 			var str = sb.ToString();
 
-			if (!m.Groups["separator"].Success)
+			if (!options.ContainsKey("separator"))
 				return str;
 
 			var offset = 0;
@@ -251,6 +283,7 @@ namespace System.Numerics.MPFR
 			return str.Insert(offset, ins);
 		}
 
-		public override string ToString() => ToString(null, null);
+		public override string ToString() => ToString(null);
+		#endregion
 	}
 }
