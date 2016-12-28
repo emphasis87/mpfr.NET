@@ -1,12 +1,14 @@
 ﻿using System.Globalization;
+using System.Numerics.MPFR.Helpers;
 using System.Text;
+using System.Text.RegularExpressions;
 using static System.Numerics.MPFR.MPFRLibrary;
 
 // ReSharper disable InconsistentNaming
 
 namespace System.Numerics.MPFR
 {
-	public partial class BigFloat : IDisposable
+	public partial class BigFloat : IDisposable, IFormattable
 	{
 		static BigFloat()
 		{
@@ -158,17 +160,6 @@ namespace System.Numerics.MPFR
 			_value = v;
 		}
 
-		public override string ToString()
-		{
-			long exp = 0;
-			var capacity = (int)(Precision / 2 + 8);
-			var sbase = 10;
-			uint significantDigits = 0;
-			var sb = new StringBuilder(capacity);
-			mpfr_get_str(sb, ref exp, sbase, significantDigits, _value, GetRounding());
-			return sb.ToString();
-		}
-
 		#region Dispose
 		private bool _disposed;
 
@@ -194,5 +185,43 @@ namespace System.Numerics.MPFR
 			Dispose(false);
 		}
 		#endregion
+
+		internal static readonly Regex formatPattern = new Regex(
+			@"(?:
+				(?<base>b[1-9][0-9]*)() |
+				(?<digits>d[1-9][0-9]*)() |
+				(?<point>\\.)()
+			){3}
+			\1\2\3",
+			RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+
+		public string ToString(string format, IFormatProvider formatProvider)
+		{
+			format = format.AtLeast("b10d");
+			formatProvider = formatProvider ?? NumberFormatInfo.CurrentInfo;
+
+			var m = formatPattern.Match(format);
+			if (!m.Success)
+				throw new FormatException($"The format '{format}' is not supported.");
+
+			var sbase = m.Groups["base"].Success ? int.Parse(m.Groups["base"].Value.Substring(1)) : 10;
+			if (sbase > 62)
+				throw new FormatException($"The base of {sbase} is not a supported format.");
+
+			var digits = m.Groups["digits"].Success ? uint.Parse(m.Groups["digits"].Value.Substring(1)) : 0;
+			if (digits < 2)
+				throw new FormatException($"The number of digits {sbase} is not a supported format.");
+
+			var capacity = digits == 0
+				? (int)(Precision / Math.Ceiling((double)2 / sbase) + 8)
+				: (int)Math.Max(digits + 2, 7);
+
+			var sb = new StringBuilder(capacity);
+			long exp = 0;
+			mpfr_get_str(sb, ref exp, sbase, digits, _value, GetRounding());
+			return sb.ToString();
+		}
+
+		public override string ToString() => ToString(null, null);
 	}
 }

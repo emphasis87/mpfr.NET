@@ -24,6 +24,16 @@ namespace System.Numerics.MPFR.Helpers
 			return Path.GetFullPath(path);
 		}
 
+		public static string Collapse(this string str)
+		{
+			return string.IsNullOrWhiteSpace(str) ? null : str.Trim();
+		}
+
+		public static string AtLeast(this string str, string atLeast)
+		{
+			return str.Collapse() ?? atLeast;
+		}
+
 		public static IEnumerable<string> NotVoid(this IEnumerable<string> items)
 		{
 			return items?.Where(x => !string.IsNullOrWhiteSpace(x)) ?? new string[0];
