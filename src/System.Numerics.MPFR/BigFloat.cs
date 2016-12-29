@@ -210,15 +210,18 @@ namespace System.Numerics.MPFR
 		#region ToString
 		internal static readonly Regex notDigitPattern = new Regex(@"^([^0-9]*)");
 		internal static readonly Regex formatPattern = new Regex(@"
+			(?<sign>^[^][!;_][!;_][!;_+-]) |
 			(?<base>b[0-9]+) |
 			(?<digits>d[0-9]+) |
-			(?<separator>[.]) |
-			(?<exponent>e)",
+			(?<positional>p([0-9]*?[#]?[0-9]*([.][0-9]*?[#][0-9]*)?)([<>]=?[+-]?[0-9]+){0,2}) |
+			(?<exponent>[eE]([^][!;_][!;_][!;_+-])?([0-9]*)([<>]=?[+-]?[0-9]+){0,2}) |
+			(?<collapse>c) |
+			(?<raw>@)",
 			RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
 		public string ToString(string format, IFormatProvider formatProvider = null)
 		{
-			format = format.AtLeast("b10.");
+			format = format.Collapse();
 			formatProvider = formatProvider ?? CultureInfo.CurrentUICulture;
 
 			var options = new Dictionary<string, string>();
@@ -267,20 +270,28 @@ namespace System.Numerics.MPFR
 			mpfr_get_str(sb, ref exp, sbase, digits, _value, GetRounding());
 			var str = sb.ToString();
 
-			if (!options.ContainsKey("separator"))
-				return str;
-
 			var offset = 0;
 			var dm = notDigitPattern.Match(str);
 			if (dm.Success)
 				offset = dm.Groups[0].Value.Length;
 
-			var prefix = (exp <= 0 ? "0" : "");
-			var suffixLength = (int)Math.Max(1 - exp, 0);
-			var suffix = (suffixLength > 0 ? new string('0', suffixLength) : "");
-			var ins = $"{prefix}{nfi.NumberDecimalSeparator}{suffix}";
+			if (options.ContainsKey("separator"))
+			{
+				var prefix = (exp <= 0 ? "0" : "");
+				var suffixLength = (int)Math.Max(1 - exp, 0);
+				var suffix = (suffixLength > 0 ? new string('0', suffixLength) : "");
+				var ins = $"{prefix}{nfi.NumberDecimalSeparator}{suffix}";
 
-			return str.Insert(offset, ins);
+				var separator = str.Insert(offset, ins);
+				return separator;
+			}
+
+			var sign = Math.Sign(exp);
+			if (sign == 0)
+				sign = +1;
+
+			var exponent = str.Insert(offset, $"0{nfi.NumberDecimalSeparator}") + $"{sign:+;-}".Replace("1", $"E{Math.Abs(exp)}");
+			return exponent;
 		}
 
 		public override string ToString() => ToString(null);

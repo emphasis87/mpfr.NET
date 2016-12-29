@@ -37,5 +37,10 @@ namespace System.Numerics.MPFR.Tests
 			Action action = () => _num.ToString(format);
 			action.ShouldThrow<FormatException>();
 		}
+
+		[Test]
+		public void Can_print_exponents()
+		{
+		}
 	}
 }
