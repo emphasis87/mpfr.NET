@@ -208,34 +208,84 @@ namespace System.Numerics.MPFR
 		#endregion
 
 		#region ToString
-		internal static readonly Regex notDigitPattern = new Regex(@"^([^0-9]*)");
-		internal static readonly Regex formatPattern = new Regex(@"
+		private static readonly Regex notDigitPattern = new Regex("^([^0-9]*)", RegexOptions.Compiled);
+		private static readonly Regex lastZerosPattern = new Regex("0*$", RegexOptions.Compiled);
+		private static readonly Regex formatPattern = new Regex(@"
 			(?<sign>^[^][!;_][!;_][!;_+-]) |
 			(?<base>b[0-9]+) |
 			(?<digits>d[0-9]+) |
-			(?<positional>p([0-9]*?[#]?[0-9]*([.][0-9]*?[#][0-9]*)?)([<>]=?[+-]?[0-9]+){0,2}) |
-			(?<exponent>[eE]([^][!;_][!;_][!;_+-])?([0-9]*)([<>]=?[+-]?[0-9]+){0,2}) |
-			(?<collapse>c) |
-			(?<raw>@)",
+			(?<positional>p
+				(?<p-fixedPrefix>[0-9]*)?
+				([.]
+					(?<p-fixedSuffix>[0-9]*)?
+					([#](?<p-optionalSuffix>[0-9]*)?)?
+				)?
+				(
+					(?<p-comparison>[<>]?[=]?[+-]?[0-9]+) |
+					(?<p-interval>[(][+-]?[0-9]+;[+-]?[0-9]+[)])
+				)*
+			) |
+			(?<exponent>[eE]
+				([^](?<e-sign>[!;][!;][!;_+-])?
+				(?<e-fixedLength>[0-9]*)?
+				(
+					(?<e-comparison>[<>]?[=]?[+-]?[0-9]+) |
+					([(](?<e-interval>[+-]?[0-9]+;[+-]?[0-9]+)[)])
+				)*
+			) |
+			(?<collapse>c) ",
 			RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
+
+		public override string ToString() => ToString(null);
 
 		public string ToString(string format, IFormatProvider formatProvider = null)
 		{
 			format = format.Collapse();
 			formatProvider = formatProvider ?? CultureInfo.CurrentUICulture;
 
-			var options = new Dictionary<string, string>();
+			var options = new HashSet<char>();
 
-			var groups = new[] { "base", "digits", "separator", "exponent" };
+			SignOptions sign = null;
+			var sbase = 10;
+			uint digits = 0;
+			PositionalDecimalOptions positionalDecimal = null;
+			ExponentialDecimalOptions exponentialDecimal = null;
+			var collapse = false;
+
 			var m = formatPattern.Match(format);
 			var pos = 0;
 			while (m.Success)
 			{
-				var group = groups.Select(x => new { Name = x, Group = m.Groups[x] }).First(x => x.Group.Success);
-				if (options.ContainsKey(group.Name))
-					throw new FormatException($"There are duplicate format options specified: '{options[group.Name]}' and '{group.Group.Value}'");
+				var capture = m.Captures[0].Value;
+				var optval = capture.Substring(1);
+				var opt = capture.Substring(0, 1).ToLowerInvariant()[0];
+				switch (opt)
+				{
+					case '^':
+						sign = new SignOptions(optval);
+						break;
+					case 'b':
+						if (!int.TryParse(optval, out sbase) || sbase < 2 || sbase > 62)
+							throw new FormatException($"A format with the base '{sbase}' is not supported. Use a number between 2 and 62.");
+						break;
+					case 'd':
+						if (!uint.TryParse(optval, out digits) || (digits < 2 && digits != 0))
+							throw new FormatException($"A format with the number of digits '{sbase}' is not supported. Use a number greater than 2 or 0.");
+						break;
+					case 'p':
+						positionalDecimal = new PositionalDecimalOptions(m);
+						break;
+					case 'e':
+						exponentialDecimal = new ExponentialDecimalOptions(m);
+						break;
+					case 'c':
+						collapse = true;
+						break;
+				}
 
-				options[group.Name] = group.Group.Value.Substring(1);
+				if (!options.Add(opt))
+					throw new FormatException($"There are duplicate format options specified for the group '{opt}'.");
+				
 				pos = m.Index + m.Length;
 				m = m.NextMatch();
 			}
@@ -243,58 +293,432 @@ namespace System.Numerics.MPFR
 			if (pos < format.Length)
 				throw new FormatException($"An unsupported format: '{format}' at position {pos}.");
 
-			if (options.ContainsKey("separator") && options.ContainsKey("exponent"))
-				throw new FormatException("Use either the decimal places separator format '.' or exponent format 'e', but not both.");
-
-			var sbase = options.Retrieve("base").With(int.Parse) ?? 10;
-			if (sbase < 2 || sbase > 62)
-				throw new FormatException($"A format with the base '{sbase}' is not supported. Use a number between 2 and 62.");
-
-			var digits = options.Retrieve("digits").With(uint.Parse) ?? 0;
-			if (digits < 2 && digits != 0)
-				throw new FormatException($"A format with the number of digits '{sbase}' is not supported. Use a number greater than 2 or 0.");
-
 			var nfi = NumberFormatInfo.GetInstance(formatProvider);
 			if (IsNan())
 				return nfi.NaNSymbol;
 
 			if (IsInf())
-				return IsNegative() ? nfi.NegativeInfinitySymbol : nfi.PositiveInfinitySymbol;
+			{
+				var isNegative = IsNegative();
 
+				var sym = isNegative ? nfi.NegativeInfinitySymbol : nfi.PositiveInfinitySymbol;
+				var prefix = isNegative ? nfi.NegativeSign : nfi.PositiveSign;
+
+				if (sign != null)
+				{
+					switch (sign.WhenPositive)
+					{
+						case ValueSignOption.Always:
+							return sym.PrependOnce(prefix);
+						case ValueSignOption.None:
+							return sym.SkipOnce(prefix);
+					}
+				}
+
+				return sym;
+			}
+
+			long exp;
+			var str = ToString(sbase, digits, out exp);
+
+			int offset;
+			str = ApplySign(str, out offset, sign, nfi.PositiveSign, nfi.NegativeSign);
+
+			var useExponential = ShouldUseExponent(exponentialDecimal, positionalDecimal, exp);
+			if (useExponential)
+			{
+				str = str.Insert(offset, $"0{nfi.NumberDecimalSeparator}");
+				str = ApplyExponent(str, exp, exponentialDecimal, nfi.PositiveSign, nfi.NegativeSign);
+				return str;
+			}
+
+			str = ApplyPositional(str, exp, offset, positionalDecimal, nfi.NumberDecimalSeparator);
+			return str;
+		}
+
+		private string ApplySign(string str, out int offset, SignOptions sign, string plus, string minus)
+		{
+			offset = 0;
+			var dm = notDigitPattern.Match(str);
+			if (dm.Success)
+				offset = dm.Groups[0].Value.Length;
+
+			if (IsZero())
+			{
+				switch (sign.WhenZero)
+				{
+					case ZeroSignOption.Always:
+						str = ReplaceSign(str, ref offset, IsNegative() ? minus : plus);
+						break;
+					case ZeroSignOption.Plus:
+						str = ReplaceSign(str, ref offset, plus);
+						break;
+					case ZeroSignOption.Minus:
+						str = ReplaceSign(str, ref offset, minus);
+						break;
+					case ZeroSignOption.None:
+						str = ReplaceSign(str, ref offset);
+						break;
+				}
+			}
+			else if (IsPositive())
+			{
+				switch (sign.WhenPositive)
+				{
+					case ValueSignOption.Always:
+						str = ReplaceSign(str, ref offset, plus);
+						break;
+					case ValueSignOption.None:
+						str = ReplaceSign(str, ref offset);
+						break;
+				}
+			}
+			else if (IsNegative())
+			{
+				switch (sign.WhenNegative)
+				{
+					case ValueSignOption.Always:
+						str = ReplaceSign(str, ref offset, minus);
+						break;
+					case ValueSignOption.None:
+						str = ReplaceSign(str, ref offset);
+						break;
+				}
+			}
+
+			return str;
+		}
+
+		private static string ReplaceSign(string str, ref int offset, string mark = "")
+		{
+			if (offset != 0)
+			{
+				str = mark + str.Substring(offset);
+				offset = 0;
+			}
+			else if (mark.Length != 0)
+			{
+				str = mark + str;
+				offset = mark.Length;
+			}
+			return str;
+		}
+
+		private static bool ShouldUseExponent(ExponentialDecimalOptions e, PositionalDecimalOptions p, long exp)
+		{
+			var isExponential = e != null;
+			var isPositional = p != null;
+
+			var useExponential = true;
+			if (isExponential && isPositional)
+			{
+				if (p.Contains(exp) && !e.Contains(exp))
+					useExponential = false;
+			}
+			else if (isPositional)
+				useExponential = p.Contains(exp);
+			else if (isExponential)
+				useExponential = !e.Contains(exp);
+			return useExponential;
+		}
+
+		private string ApplyExponent(string str, long exp, ExponentialDecimalOptions e, string plus, string minus)
+		{
+			var mark = e?.Mark ?? "E";
+			var sign = e?.SignOptions ?? new SignOptions("!!+");
+
+			var sigexp = "";
+			switch (Math.Sign(exp))
+			{
+				case 0:
+					switch (sign.WhenZero)
+					{
+						case ZeroSignOption.Always:
+						case ZeroSignOption.Plus:
+						case ZeroSignOption.Default:
+							sigexp = plus;
+							break;
+						case ZeroSignOption.Minus:
+							sigexp = minus;
+							break;
+					}
+					break;
+				case 1:
+					switch (sign.WhenPositive)
+					{
+						case ValueSignOption.Always:
+						case ValueSignOption.Default:
+							sigexp = plus;
+							break;
+					}
+					break;
+				case -1:
+					switch (sign.WhenNegative)
+					{
+						case ValueSignOption.Always:
+						case ValueSignOption.Default:
+							sigexp = minus;
+							break;
+					}
+					break;
+			}
+
+			return $"{str}{sigexp}{mark}{Math.Abs(exp)}";
+		}
+
+		private string ApplyPositional(string str, long exp, int offset, PositionalDecimalOptions p, string separator)
+		{
+			var fixedPrefix = Math.Min(p?.FixedPrefix ?? 1, 1);
+			var fixedSuffix = p?.FixedSuffix ?? 0;
+			var optionalSuffix = p?.OptionalSuffix ?? 0;
+
+			string sign, digits;
+			str.SplitParts(offset, out sign, out digits);
+
+			string ldigits, rdigits;
+			str.SplitParts(exp, out ldigits, out rdigits);
+
+			if (ldigits.Length < fixedPrefix)
+				ldigits = ldigits.PadLeft(fixedPrefix, '0');
+			if (rdigits.Length < fixedSuffix)
+				rdigits = rdigits.PadRight(fixedSuffix, '0');
+
+			if (optionalSuffix > fixedSuffix)
+			{
+				string fs, os;
+				rdigits.SplitParts(optionalSuffix - fixedSuffix, out fs, out os);
+
+				if (os.Length > 0)
+				{
+					os = lastZerosPattern.Replace(os, "");
+					rdigits = fs + os;
+				}
+			}
+
+			return rdigits.Length > 0 ? $"{sign}{ldigits}{separator}{rdigits}" : $"{sign}{ldigits}";
+		}
+
+		#region SignOptions
+
+		private class SignOptions
+		{
+			public ValueSignOption WhenPositive { get; }
+			public ValueSignOption WhenNegative { get; }
+			public ZeroSignOption WhenZero { get; }
+
+			public SignOptions()
+			{
+			}
+
+			public SignOptions(string sign)
+			{
+				if (sign == null)
+					return;
+
+				if (sign.Length > 2)
+					WhenZero = ParseZeroSignOption(sign[2]);
+				if (sign.Length > 1)
+					WhenNegative = ParseValueSignOption(sign[1]);
+				if (sign.Length > 0)
+					WhenPositive = ParseValueSignOption(sign[0]);
+			}
+
+			private static ValueSignOption ParseValueSignOption(char option)
+			{
+				switch (option)
+				{
+					case '!': return ValueSignOption.Always;
+					case ';': return ValueSignOption.Default;
+					case '_': return ValueSignOption.None;
+					default:
+						throw new FormatException($"'{option}' is not recognized as an option for a sign-filling behavior for a positive or negative value.");
+				}
+			}
+
+			private static ZeroSignOption ParseZeroSignOption(char option)
+			{
+				switch (option)
+				{
+					case '!': return ZeroSignOption.Always;
+					case ';': return ZeroSignOption.Default;
+					case '_': return ZeroSignOption.None;
+					case '+': return ZeroSignOption.Plus;
+					case '-': return ZeroSignOption.Minus;
+					default:
+						throw new FormatException($"'{option}' is not recognized as an option for a sign-filling behavior for zero.");
+				}
+			}
+		}
+
+		private enum ValueSignOption
+		{
+			Default,
+			Always,
+			None,
+		}
+
+		private enum ZeroSignOption
+		{
+			Always,
+			Default,
+			None,
+			Plus,
+			Minus,
+		}
+
+		#endregion
+		#region DecimalOptions
+
+		private interface IInterval
+		{
+			bool Contains(long value);
+		}
+
+		private class DecimalOptions : IInterval
+		{
+			public IInterval[] Comparisons { get; }
+			public IInterval[] Intervals { get; }
+
+			protected DecimalOptions(Match match)
+			{
+				var comparisons = new[] { match.Groups["e-comparison"], match.Groups["p-comparison"] }
+					.Where(x => x.Success)
+					.Select(x => x.Captures.ToEnumerable().Cast<Capture>().Select(c => new Comparison(c.Value)).ToArray())
+					.FirstOrDefault() ?? new Comparison[0];
+				Comparisons = comparisons.OfType<IInterval>().ToArray();
+
+				var intervals = new[] { match.Groups["e-interval"], match.Groups["p-interval"] }
+					.Where(x => x.Success)
+					.Select(x => x.Captures.ToEnumerable().Cast<Capture>().Select(c => new Interval(c.Value)).ToArray())
+					.FirstOrDefault() ?? new Interval[0];
+				Intervals = intervals.OfType<IInterval>().ToArray();
+			}
+
+			public bool Contains(long exponent) => Comparisons.Concat(Intervals).Any(x => x.Contains(exponent));
+		}
+
+		private class PositionalDecimalOptions : DecimalOptions
+		{
+			public int FixedPrefix { get; }
+			public int FixedSuffix { get; }
+			public int OptionalSuffix { get; }
+
+			public PositionalDecimalOptions(Match match) : base(match)
+			{
+			}
+		}
+
+		private class ExponentialDecimalOptions : DecimalOptions
+		{
+			public SignOptions SignOptions { get; }
+			public string Mark { get; }
+
+			public ExponentialDecimalOptions(Match match) : base(match)
+			{
+				Mark = match.Groups["exponent"].Value.Substring(0, 1);
+
+				var signGroup = match.Groups["e-sign"];
+				if (!signGroup.Success)
+					return;
+
+				var sign = signGroup.Value;
+				SignOptions = new SignOptions(sign);
+			}
+		}
+
+		#region Comparison
+
+		private class Comparison : IInterval
+		{
+			public ComparisonOperator Operator { get; }
+			public int Value { get; }
+
+			public Comparison(string comparison)
+			{
+				var c1 = comparison[0];
+				var c2 = comparison[1];
+				switch (c1)
+				{
+					case '=':
+						Operator = ComparisonOperator.Equal;
+						break;
+					case '<':
+						Operator = c2 == '=' ? ComparisonOperator.LessOrEqual : ComparisonOperator.Less;
+						break;
+					case '>':
+						Operator = c2 == '=' ? ComparisonOperator.GreaterOrEqual : ComparisonOperator.Greater;
+						break;
+				}
+				var value = comparison.Substring(1 + (c2 == '=' ? 1 : 0));
+				Value = int.Parse(value);
+			}
+
+			public bool Contains(long exponent)
+			{
+				switch (Operator)
+				{
+					case ComparisonOperator.Equal:
+						return exponent == Value;
+					case ComparisonOperator.GreaterOrEqual:
+						return exponent >= Value;
+					case ComparisonOperator.Greater:
+						return exponent > Value;
+					case ComparisonOperator.LessOrEqual:
+						return exponent <= Value;
+					case ComparisonOperator.Less:
+						return exponent < Value;
+					default:
+						return false;
+				}
+			}
+		}
+
+		private enum ComparisonOperator
+		{
+			Equal,
+			GreaterOrEqual,
+			Greater,
+			LessOrEqual,
+			Less,
+		}
+
+		#endregion
+
+		#region Interval
+
+		private class Interval : IInterval
+		{
+			public int First { get; }
+			public int Second { get; }
+
+			public Interval(string interval)
+			{
+				var values = interval.Split(';').Select(int.Parse).OrderBy(x => x).ToArray();
+				First = values[0];
+				Second = values[1];
+			}
+
+			public bool Contains(long exponent) => exponent >= First && exponent <= Second;
+		}
+
+		#endregion
+
+		#endregion
+
+		public string ToString(int sbase, uint digits, out long exponent)
+		{
 			var capacity = digits == 0
 				? (int)Math.Ceiling((decimal)Precision / (sbase - 1)) + 8
 				: (int)Math.Max(digits + 2, 7);
 
 			var sb = new StringBuilder(capacity);
-			long exp = 0;
-			mpfr_get_str(sb, ref exp, sbase, digits, _value, GetRounding());
+			exponent = 0;
+			mpfr_get_str(sb, ref exponent, sbase, digits, _value, GetRounding());
 			var str = sb.ToString();
 
-			var offset = 0;
-			var dm = notDigitPattern.Match(str);
-			if (dm.Success)
-				offset = dm.Groups[0].Value.Length;
-
-			if (options.ContainsKey("separator"))
-			{
-				var prefix = (exp <= 0 ? "0" : "");
-				var suffixLength = (int)Math.Max(1 - exp, 0);
-				var suffix = (suffixLength > 0 ? new string('0', suffixLength) : "");
-				var ins = $"{prefix}{nfi.NumberDecimalSeparator}{suffix}";
-
-				var separator = str.Insert(offset, ins);
-				return separator;
-			}
-
-			var sign = Math.Sign(exp);
-			if (sign == 0)
-				sign = +1;
-
-			var exponent = str.Insert(offset, $"0{nfi.NumberDecimalSeparator}") + $"{sign:+;-}".Replace("1", $"E{Math.Abs(exp)}");
-			return exponent;
+			return str;
 		}
 
-		public override string ToString() => ToString(null);
 		#endregion
 	}
 }
