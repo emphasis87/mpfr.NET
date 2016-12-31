@@ -215,93 +215,102 @@ namespace System.Numerics.MPFR
 			(?<base>b[0-9]+) |
 			(?<digits>d[0-9]+) |
 			(?<positional>p
-				(?<p-fixedPrefix>[0-9]*)?
+				(?<p_fixedPrefix>[0-9]*)?
 				([.]
-					(?<p-fixedSuffix>[0-9]*)?
-					([#](?<p-optionalSuffix>[0-9]*)?)?
+					(?<p_fixedSuffix>[0-9]*)?
+					([#](?<p_optionalSuffix>[0-9]*)?)?
 				)?
 				(
-					(?<p-comparison>[<>]?[=]?[+-]?[0-9]+) |
-					(?<p-interval>[(][+-]?[0-9]+;[+-]?[0-9]+[)])
+					(?<p_comparison>[<>]?[=]?[+-]?[0-9]+) |
+					(?<p_interval>[(][+-]?[0-9]+;[+-]?[0-9]+[)])
 				)*
 			) |
 			(?<exponent>[eE]
-				([^](?<e-sign>[!;][!;][!;_+-])?
-				(?<e-fixedLength>[0-9]*)?
+				([^](?<e_sign>[!;][!;][!;_+-])?
+				(?<e_fixedLength>[0-9]*)?
 				(
-					(?<e-comparison>[<>]?[=]?[+-]?[0-9]+) |
-					([(](?<e-interval>[+-]?[0-9]+;[+-]?[0-9]+)[)])
+					(?<e_comparison>[<>]?[=]?[+-]?[0-9]+) |
+					([(](?<e_interval>[+-]?[0-9]+;[+-]?[0-9]+)[)])
 				)*
 			) |
-			(?<collapse>c) ",
+			(?<unchanged>u) ",
 			RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
-
-		public override string ToString() => ToString(null);
 
 		public string ToString(string format, IFormatProvider formatProvider = null)
 		{
 			format = format.Collapse();
 			formatProvider = formatProvider ?? CultureInfo.CurrentUICulture;
 
-			var options = new HashSet<char>();
-
 			SignOptions sign = null;
 			var sbase = 10;
 			uint digits = 0;
 			PositionalDecimalOptions positionalDecimal = null;
 			ExponentialDecimalOptions exponentialDecimal = null;
-			var collapse = false;
+			var unchanged = false;
 
-			var m = formatPattern.Match(format);
-			var pos = 0;
-			while (m.Success)
+			if (!format.IsVoid())
 			{
-				var capture = m.Captures[0].Value;
-				var optval = capture.Substring(1);
-				var opt = capture.Substring(0, 1).ToLowerInvariant()[0];
-				switch (opt)
+				var options = new HashSet<char>();
+				var m = formatPattern.Match(format);
+				var pos = 0;
+				while (m.Success)
 				{
-					case '^':
-						sign = new SignOptions(optval);
-						break;
-					case 'b':
-						if (!int.TryParse(optval, out sbase) || sbase < 2 || sbase > 62)
-							throw new FormatException($"A format with the base '{sbase}' is not supported. Use a number between 2 and 62.");
-						break;
-					case 'd':
-						if (!uint.TryParse(optval, out digits) || (digits < 2 && digits != 0))
-							throw new FormatException($"A format with the number of digits '{sbase}' is not supported. Use a number greater than 2 or 0.");
-						break;
-					case 'p':
-						positionalDecimal = new PositionalDecimalOptions(m);
-						break;
-					case 'e':
-						exponentialDecimal = new ExponentialDecimalOptions(m);
-						break;
-					case 'c':
-						collapse = true;
-						break;
+					var capture = m.Captures[0].Value;
+					var optval = capture.Substring(1);
+					var opt = capture[0];
+					switch (opt)
+					{
+						case '^':
+							sign = new SignOptions(optval);
+							break;
+
+						case 'b':
+							if (!int.TryParse(optval, out sbase) || sbase < 2 || sbase > 62)
+								throw new FormatException($"A format with the base '{sbase}' is not supported. Use a number between 2 and 62.");
+							break;
+
+						case 'd':
+							if (!uint.TryParse(optval, out digits) || (digits < 2 && digits != 0))
+								throw new FormatException(
+									$"A format with the number of digits '{sbase}' is not supported. Use a number greater than 2 or 0.");
+							break;
+
+						case 'p':
+							positionalDecimal = new PositionalDecimalOptions(m);
+							break;
+
+						case '@':
+						case 'E':
+						case 'e':
+							opt = 'e';
+							exponentialDecimal = new ExponentialDecimalOptions(m);
+							break;
+
+						case 'u':
+							unchanged = true;
+							break;
+					}
+
+					if (!options.Add(opt))
+						throw new FormatException($"There are duplicate format options specified for the group '{opt}'.");
+
+					pos = m.Index + m.Length;
+					m = m.NextMatch();
 				}
 
-				if (!options.Add(opt))
-					throw new FormatException($"There are duplicate format options specified for the group '{opt}'.");
-				
-				pos = m.Index + m.Length;
-				m = m.NextMatch();
+				if (pos < format.Length)
+					throw new FormatException($"An unsupported format: '{format}' at position {pos}.");
 			}
-
-			if (pos < format.Length)
-				throw new FormatException($"An unsupported format: '{format}' at position {pos}.");
 
 			var nfi = NumberFormatInfo.GetInstance(formatProvider);
 			if (IsNan())
-				return nfi.NaNSymbol;
+				return sbase > 16 ? $"@{nfi.NaNSymbol}@" : nfi.NaNSymbol;
 
 			if (IsInf())
 			{
 				var isNegative = IsNegative();
 
-				var sym = isNegative ? nfi.NegativeInfinitySymbol : nfi.PositiveInfinitySymbol;
+				var infinity = isNegative ? nfi.NegativeInfinitySymbol : nfi.PositiveInfinitySymbol;
 				var prefix = isNegative ? nfi.NegativeSign : nfi.PositiveSign;
 
 				if (sign != null)
@@ -309,13 +318,20 @@ namespace System.Numerics.MPFR
 					switch (sign.WhenPositive)
 					{
 						case ValueSignOption.Always:
-							return sym.PrependOnce(prefix);
+							return infinity.PrependOnce(prefix);
+
 						case ValueSignOption.None:
-							return sym.SkipOnce(prefix);
+							return infinity.SkipOnce(prefix);
 					}
 				}
 
-				return sym;
+				if (sbase > 16)
+				{
+					if (infinity.StartsWith(prefix))
+						return $"{infinity.Insert(prefix.Length, "@")}@";
+					return $"@{infinity}@";
+				}
+				return infinity;
 			}
 
 			long exp;
@@ -324,17 +340,36 @@ namespace System.Numerics.MPFR
 			int offset;
 			str = ApplySign(str, out offset, sign, nfi.PositiveSign, nfi.NegativeSign);
 
+			if (!unchanged && exp < str.Length)
+				str = Normalize(str, exp, sbase);
+
 			var useExponential = ShouldUseExponent(exponentialDecimal, positionalDecimal, exp);
 			if (useExponential)
 			{
 				str = str.Insert(offset, $"0{nfi.NumberDecimalSeparator}");
-				str = ApplyExponent(str, exp, exponentialDecimal, nfi.PositiveSign, nfi.NegativeSign);
+				str = ApplyExponent(str, exp, sbase, exponentialDecimal, nfi.PositiveSign, nfi.NegativeSign);
 				return str;
 			}
 
 			str = ApplyPositional(str, exp, offset, positionalDecimal, nfi.NumberDecimalSeparator);
 			return str;
 		}
+
+		public string ToString(int sbase, uint digits, out long exponent)
+		{
+			var capacity = digits == 0
+				? (int)Math.Ceiling((decimal)Precision / (sbase - 1)) + 8
+				: (int)Math.Max(digits + 2, 7);
+
+			var sb = new StringBuilder(capacity);
+			exponent = 0;
+			mpfr_get_str(sb, ref exponent, sbase, digits, _value, GetRounding());
+			var str = sb.ToString();
+
+			return str;
+		}
+
+		public override string ToString() => ToString(null);
 
 		private string ApplySign(string str, out int offset, SignOptions sign, string plus, string minus)
 		{
@@ -343,46 +378,36 @@ namespace System.Numerics.MPFR
 			if (dm.Success)
 				offset = dm.Groups[0].Value.Length;
 
+			if (sign == null)
+				return str;
+
 			if (IsZero())
 			{
 				switch (sign.WhenZero)
 				{
 					case ZeroSignOption.Always:
-						str = ReplaceSign(str, ref offset, IsNegative() ? minus : plus);
-						break;
+						return ReplaceSign(str, ref offset, IsNegative() ? minus : plus);
+
 					case ZeroSignOption.Plus:
-						str = ReplaceSign(str, ref offset, plus);
-						break;
+						return ReplaceSign(str, ref offset, plus);
+
 					case ZeroSignOption.Minus:
-						str = ReplaceSign(str, ref offset, minus);
-						break;
+						return ReplaceSign(str, ref offset, minus);
+
 					case ZeroSignOption.None:
-						str = ReplaceSign(str, ref offset);
-						break;
+						return ReplaceSign(str, ref offset);
 				}
 			}
-			else if (IsPositive())
+			else
 			{
+				var prefix = IsNegative() ? minus : plus;
 				switch (sign.WhenPositive)
 				{
 					case ValueSignOption.Always:
-						str = ReplaceSign(str, ref offset, plus);
-						break;
+						return ReplaceSign(str, ref offset, prefix);
+
 					case ValueSignOption.None:
-						str = ReplaceSign(str, ref offset);
-						break;
-				}
-			}
-			else if (IsNegative())
-			{
-				switch (sign.WhenNegative)
-				{
-					case ValueSignOption.Always:
-						str = ReplaceSign(str, ref offset, minus);
-						break;
-					case ValueSignOption.None:
-						str = ReplaceSign(str, ref offset);
-						break;
+						return ReplaceSign(str, ref offset);
 				}
 			}
 
@@ -422,9 +447,9 @@ namespace System.Numerics.MPFR
 			return useExponential;
 		}
 
-		private string ApplyExponent(string str, long exp, ExponentialDecimalOptions e, string plus, string minus)
+		private string ApplyExponent(string str, long exp, int sbase, ExponentialDecimalOptions e, string plus, string minus)
 		{
-			var mark = e?.Mark ?? "E";
+			var mark = sbase > 16 ? "@" : e?.Mark ?? "E";
 			var sign = e?.SignOptions ?? new SignOptions("!!+");
 
 			var sigexp = "";
@@ -438,11 +463,13 @@ namespace System.Numerics.MPFR
 						case ZeroSignOption.Default:
 							sigexp = plus;
 							break;
+
 						case ZeroSignOption.Minus:
 							sigexp = minus;
 							break;
 					}
 					break;
+
 				case 1:
 					switch (sign.WhenPositive)
 					{
@@ -452,6 +479,7 @@ namespace System.Numerics.MPFR
 							break;
 					}
 					break;
+
 				case -1:
 					switch (sign.WhenNegative)
 					{
@@ -463,12 +491,12 @@ namespace System.Numerics.MPFR
 					break;
 			}
 
-			return $"{str}{sigexp}{mark}{Math.Abs(exp)}";
+			return $"{str}{mark}{sigexp}{Math.Abs(exp)}";
 		}
 
 		private string ApplyPositional(string str, long exp, int offset, PositionalDecimalOptions p, string separator)
 		{
-			var fixedPrefix = Math.Min(p?.FixedPrefix ?? 1, 1);
+			var fixedPrefix = Math.Max(p?.FixedPrefix ?? 1, 1);
 			var fixedSuffix = p?.FixedSuffix ?? 0;
 			var optionalSuffix = p?.OptionalSuffix ?? 0;
 
@@ -477,6 +505,8 @@ namespace System.Numerics.MPFR
 
 			string ldigits, rdigits;
 			str.SplitParts(exp, out ldigits, out rdigits);
+
+			rdigits = rdigits.TrimEnd('0');
 
 			if (ldigits.Length < fixedPrefix)
 				ldigits = ldigits.PadLeft(fixedPrefix, '0');
@@ -496,6 +526,31 @@ namespace System.Numerics.MPFR
 			}
 
 			return rdigits.Length > 0 ? $"{sign}{ldigits}{separator}{rdigits}" : $"{sign}{ldigits}";
+		}
+
+		private string Normalize(string str, long exp, int sbase)
+		{
+			if (str.IsVoid())
+				return str;
+
+			var last = _digits[sbase];
+			if (str.LastChar() != last)
+				return str;
+
+			var alt = str.TrimEnd(last);
+			if (alt.Length == 0)
+				alt = "1";
+			else
+			{
+				last = _digits[(_position[alt.LastChar()] + 1) % sbase];
+				alt = $"{(alt.Length > 1 ? alt.Substring(0, alt.Length - 1) : "")}{last}";
+			}
+
+			var check = new BigFloat($"0.{alt}@{(exp >= 0 ? "+" : "-")}{exp}", sbase, Precision);
+			if (check.IsEqual(this))
+				return alt;
+
+			return str;
 		}
 
 		#region SignOptions
@@ -576,18 +631,18 @@ namespace System.Numerics.MPFR
 
 		private class DecimalOptions : IInterval
 		{
-			public IInterval[] Comparisons { get; }
-			public IInterval[] Intervals { get; }
+			private IInterval[] Comparisons { get; }
+			private IInterval[] Intervals { get; }
 
 			protected DecimalOptions(Match match)
 			{
-				var comparisons = new[] { match.Groups["e-comparison"], match.Groups["p-comparison"] }
+				var comparisons = new[] { match.Groups["e_comparison"], match.Groups["p_comparison"] }
 					.Where(x => x.Success)
 					.Select(x => x.Captures.ToEnumerable().Cast<Capture>().Select(c => new Comparison(c.Value)).ToArray())
 					.FirstOrDefault() ?? new Comparison[0];
 				Comparisons = comparisons.OfType<IInterval>().ToArray();
 
-				var intervals = new[] { match.Groups["e-interval"], match.Groups["p-interval"] }
+				var intervals = new[] { match.Groups["e_interval"], match.Groups["p_interval"] }
 					.Where(x => x.Success)
 					.Select(x => x.Captures.ToEnumerable().Cast<Capture>().Select(c => new Interval(c.Value)).ToArray())
 					.FirstOrDefault() ?? new Interval[0];
@@ -605,6 +660,17 @@ namespace System.Numerics.MPFR
 
 			public PositionalDecimalOptions(Match match) : base(match)
 			{
+				var fpGroup = match.Groups["p_fixedPrefix"];
+				if (fpGroup.Success && !fpGroup.Value.IsVoid())
+					FixedPrefix = int.Parse(fpGroup.Value);
+
+				var fsGroup = match.Groups["p_fixedSuffix"];
+				if (fsGroup.Success && !fsGroup.Value.IsVoid())
+					FixedSuffix = int.Parse(fsGroup.Value);
+
+				var osGroup = match.Groups["p_optionalSuffix"];
+				if (osGroup.Success && !osGroup.Value.IsVoid())
+					OptionalSuffix = int.Parse(osGroup.Value);
 			}
 		}
 
@@ -617,7 +683,7 @@ namespace System.Numerics.MPFR
 			{
 				Mark = match.Groups["exponent"].Value.Substring(0, 1);
 
-				var signGroup = match.Groups["e-sign"];
+				var signGroup = match.Groups["e_sign"];
 				if (!signGroup.Success)
 					return;
 
@@ -642,9 +708,11 @@ namespace System.Numerics.MPFR
 					case '=':
 						Operator = ComparisonOperator.Equal;
 						break;
+
 					case '<':
 						Operator = c2 == '=' ? ComparisonOperator.LessOrEqual : ComparisonOperator.Less;
 						break;
+
 					case '>':
 						Operator = c2 == '=' ? ComparisonOperator.GreaterOrEqual : ComparisonOperator.Greater;
 						break;
@@ -659,14 +727,19 @@ namespace System.Numerics.MPFR
 				{
 					case ComparisonOperator.Equal:
 						return exponent == Value;
+
 					case ComparisonOperator.GreaterOrEqual:
 						return exponent >= Value;
+
 					case ComparisonOperator.Greater:
 						return exponent > Value;
+
 					case ComparisonOperator.LessOrEqual:
 						return exponent <= Value;
+
 					case ComparisonOperator.Less:
 						return exponent < Value;
+
 					default:
 						return false;
 				}
@@ -705,19 +778,72 @@ namespace System.Numerics.MPFR
 
 		#endregion
 
-		public string ToString(int sbase, uint digits, out long exponent)
+		private const string _digits = "_0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+		private static readonly Dictionary<char, int> _position = new Dictionary<char, int>
 		{
-			var capacity = digits == 0
-				? (int)Math.Ceiling((decimal)Precision / (sbase - 1)) + 8
-				: (int)Math.Max(digits + 2, 7);
-
-			var sb = new StringBuilder(capacity);
-			exponent = 0;
-			mpfr_get_str(sb, ref exponent, sbase, digits, _value, GetRounding());
-			var str = sb.ToString();
-
-			return str;
-		}
+			['0'] = 1,
+			['1'] = 2,
+			['2'] = 3,
+			['3'] = 4,
+			['4'] = 5,
+			['5'] = 6,
+			['6'] = 7,
+			['7'] = 8,
+			['8'] = 9,
+			['9'] = 10,
+			['A'] = 11,
+			['B'] = 12,
+			['C'] = 13,
+			['D'] = 14,
+			['E'] = 15,
+			['F'] = 16,
+			['G'] = 17,
+			['H'] = 18,
+			['I'] = 19,
+			['J'] = 20,
+			['K'] = 21,
+			['L'] = 22,
+			['M'] = 23,
+			['N'] = 24,
+			['O'] = 25,
+			['P'] = 26,
+			['Q'] = 27,
+			['R'] = 28,
+			['S'] = 29,
+			['T'] = 30,
+			['U'] = 31,
+			['V'] = 32,
+			['W'] = 33,
+			['X'] = 34,
+			['Y'] = 35,
+			['Z'] = 36,
+			['a'] = 37,
+			['b'] = 38,
+			['c'] = 39,
+			['d'] = 40,
+			['e'] = 41,
+			['f'] = 42,
+			['g'] = 43,
+			['h'] = 44,
+			['i'] = 45,
+			['j'] = 46,
+			['k'] = 47,
+			['l'] = 48,
+			['m'] = 49,
+			['n'] = 50,
+			['o'] = 51,
+			['p'] = 52,
+			['q'] = 53,
+			['r'] = 54,
+			['s'] = 55,
+			['t'] = 56,
+			['u'] = 57,
+			['v'] = 58,
+			['w'] = 59,
+			['x'] = 60,
+			['y'] = 61,
+			['z'] = 62,
+		};
 
 		#endregion
 	}

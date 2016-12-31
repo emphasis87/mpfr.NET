@@ -30,6 +30,8 @@ namespace System.Numerics.MPFR.Helpers
 			return string.IsNullOrWhiteSpace(str) ? null : str.Trim();
 		}
 
+		public static bool IsVoid(this string str) => string.IsNullOrWhiteSpace(str);
+
 		public static string AtLeast(this string str, string atLeast)
 		{
 			return str.Collapse() ?? atLeast;
@@ -130,6 +132,16 @@ namespace System.Numerics.MPFR.Helpers
 		public static string SkipOnce(this string str, string prefix)
 		{
 			return str.StartsWith(prefix) ? str.Remove(0, prefix.Length) : str;
+		}
+
+		public static string Last(this string str)
+		{
+			return str.IsVoid() ? "" : str.Substring(str.Length - 1);
+		}
+
+		public static char LastChar(this string str)
+		{
+			return str.IsVoid() ? default(char) : str[str.Length - 1];
 		}
 	}
 }
