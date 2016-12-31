@@ -211,17 +211,15 @@ namespace System.Numerics.MPFR
 		private static readonly Regex notDigitPattern = new Regex("^([^0-9]*)", RegexOptions.Compiled);
 		private static readonly Regex lastZerosPattern = new Regex("0*$", RegexOptions.Compiled);
 		private static readonly Regex formatPattern = new Regex(@"
-			(?<sign>^[^][!;_][!;_][!;_+-]) |
+			(?<sign>^[^][!;_][!;_][!;_+-]) | # !always ;default _none +positive -negative
 			(?<base>b[0-9]+) |
 			(?<digits>d[0-9]+) |
 			(?<positional>p
-				(?<p_fixedPrefix>[0-9]*)?
-				([.]
-					(?<p_fixedSuffix>[0-9]*)?
-					([#](?<p_optionalSuffix>[0-9]*)?)?
-				)?
+				(?<p_fixedPrefix>[0-9]*)? # before .
+				(?<p_fixedSuffix>[.][0-9]*)? # at least after ., '.' means
+				(?<p_optionalSuffix>[#][0-9]*)? # optional after .
 				(
-					(?<p_comparison>[<>]?[=]?[+-]?[0-9]+) |
+					(?<p_comparison>([=]|([<>][=]?))[+-]?[0-9]+) |
 					(?<p_interval>[(][+-]?[0-9]+;[+-]?[0-9]+[)])
 				)*
 			) |
@@ -233,126 +231,17 @@ namespace System.Numerics.MPFR
 					([(](?<e_interval>[+-]?[0-9]+;[+-]?[0-9]+)[)])
 				)*
 			) |
-			(?<unchanged>u) ",
+			(?<unchanged>u((?:[=#])(?!.*\1))?) # rounding or length",
 			RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
 		public string ToString(string format, IFormatProvider formatProvider = null)
 		{
 			format = format.Collapse();
-			formatProvider = formatProvider ?? CultureInfo.CurrentUICulture;
+			formatProvider = formatProvider ?? CultureInfo.CurrentCulture;
 
-			SignOptions sign = null;
-			var sbase = 10;
-			uint digits = 0;
-			PositionalDecimalOptions positionalDecimal = null;
-			ExponentialDecimalOptions exponentialDecimal = null;
-			var unchanged = false;
-
-			if (!format.IsVoid())
-			{
-				var options = new HashSet<char>();
-				var m = formatPattern.Match(format);
-				var pos = 0;
-				while (m.Success)
-				{
-					var capture = m.Captures[0].Value;
-					var optval = capture.Substring(1);
-					var opt = capture[0];
-					switch (opt)
-					{
-						case '^':
-							sign = new SignOptions(optval);
-							break;
-
-						case 'b':
-							if (!int.TryParse(optval, out sbase) || sbase < 2 || sbase > 62)
-								throw new FormatException($"A format with the base '{sbase}' is not supported. Use a number between 2 and 62.");
-							break;
-
-						case 'd':
-							if (!uint.TryParse(optval, out digits) || (digits < 2 && digits != 0))
-								throw new FormatException(
-									$"A format with the number of digits '{sbase}' is not supported. Use a number greater than 2 or 0.");
-							break;
-
-						case 'p':
-							positionalDecimal = new PositionalDecimalOptions(m);
-							break;
-
-						case '@':
-						case 'E':
-						case 'e':
-							opt = 'e';
-							exponentialDecimal = new ExponentialDecimalOptions(m);
-							break;
-
-						case 'u':
-							unchanged = true;
-							break;
-					}
-
-					if (!options.Add(opt))
-						throw new FormatException($"There are duplicate format options specified for the group '{opt}'.");
-
-					pos = m.Index + m.Length;
-					m = m.NextMatch();
-				}
-
-				if (pos < format.Length)
-					throw new FormatException($"An unsupported format: '{format}' at position {pos}.");
-			}
-
-			var nfi = NumberFormatInfo.GetInstance(formatProvider);
-			if (IsNan())
-				return sbase > 16 ? $"@{nfi.NaNSymbol}@" : nfi.NaNSymbol;
-
-			if (IsInf())
-			{
-				var isNegative = IsNegative();
-
-				var infinity = isNegative ? nfi.NegativeInfinitySymbol : nfi.PositiveInfinitySymbol;
-				var prefix = isNegative ? nfi.NegativeSign : nfi.PositiveSign;
-
-				if (sign != null)
-				{
-					switch (sign.WhenPositive)
-					{
-						case ValueSignOption.Always:
-							return infinity.PrependOnce(prefix);
-
-						case ValueSignOption.None:
-							return infinity.SkipOnce(prefix);
-					}
-				}
-
-				if (sbase > 16)
-				{
-					if (infinity.StartsWith(prefix))
-						return $"{infinity.Insert(prefix.Length, "@")}@";
-					return $"@{infinity}@";
-				}
-				return infinity;
-			}
-
-			long exp;
-			var str = ToString(sbase, digits, out exp);
-
-			int offset;
-			str = ApplySign(str, out offset, sign, nfi.PositiveSign, nfi.NegativeSign);
-
-			if (!unchanged && exp < str.Length)
-				str = Normalize(str, exp, sbase);
-
-			var useExponential = ShouldUseExponent(exponentialDecimal, positionalDecimal, exp);
-			if (useExponential)
-			{
-				str = str.Insert(offset, $"0{nfi.NumberDecimalSeparator}");
-				str = ApplyExponent(str, exp, sbase, exponentialDecimal, nfi.PositiveSign, nfi.NegativeSign);
-				return str;
-			}
-
-			str = ApplyPositional(str, exp, offset, positionalDecimal, nfi.NumberDecimalSeparator);
-			return str;
+			var fmt = new StringFormatOptions(this, NumberFormatInfo.GetInstance(formatProvider));
+			fmt.Parse(format);
+			return fmt.Format();
 		}
 
 		public string ToString(int sbase, uint digits, out long exponent)
@@ -371,186 +260,433 @@ namespace System.Numerics.MPFR
 
 		public override string ToString() => ToString(null);
 
-		private string ApplySign(string str, out int offset, SignOptions sign, string plus, string minus)
+		private class StringFormatOptions
 		{
-			offset = 0;
-			var dm = notDigitPattern.Match(str);
-			if (dm.Success)
-				offset = dm.Groups[0].Value.Length;
+			private BigFloat Number { get; }
 
-			if (sign == null)
-				return str;
-
-			if (IsZero())
+			#region IsNaN
+			private bool? _isNaN;
+			private bool IsNaN
 			{
-				switch (sign.WhenZero)
+				get
 				{
-					case ZeroSignOption.Always:
-						return ReplaceSign(str, ref offset, IsNegative() ? minus : plus);
-
-					case ZeroSignOption.Plus:
-						return ReplaceSign(str, ref offset, plus);
-
-					case ZeroSignOption.Minus:
-						return ReplaceSign(str, ref offset, minus);
-
-					case ZeroSignOption.None:
-						return ReplaceSign(str, ref offset);
+					if (_isNaN == null)
+						_isNaN = Number.IsNan();
+					return _isNaN.Value;
 				}
 			}
-			else
+			#endregion
+			#region IsInf
+			private bool? _isInf;
+			private bool IsInf
 			{
-				var prefix = IsNegative() ? minus : plus;
-				switch (sign.WhenPositive)
+				get
 				{
-					case ValueSignOption.Always:
-						return ReplaceSign(str, ref offset, prefix);
-
-					case ValueSignOption.None:
-						return ReplaceSign(str, ref offset);
+					if (_isInf == null)
+						_isInf = Number.IsInf();
+					return _isInf.Value;
 				}
 			}
-
-			return str;
-		}
-
-		private static string ReplaceSign(string str, ref int offset, string mark = "")
-		{
-			if (offset != 0)
+			#endregion
+			#region IsNegative
+			private bool? _isNegative;
+			private bool IsNegative
 			{
-				str = mark + str.Substring(offset);
-				offset = 0;
+				get
+				{
+					if (_isNegative == null)
+						_isNegative = Number.IsNegative();
+					return _isNegative.Value;
+				}
 			}
-			else if (mark.Length != 0)
+			#endregion
+			private bool IsPositive => !IsNegative;
+			#region IsZero
+			private bool? _isZero;
+			private bool IsZero
 			{
-				str = mark + str;
-				offset = mark.Length;
+				get
+				{
+					if (_isZero == null)
+						_isZero = Number.IsZero();
+					return _isZero.Value;
+				}
 			}
-			return str;
-		}
+			#endregion
 
-		private static bool ShouldUseExponent(ExponentialDecimalOptions e, PositionalDecimalOptions p, long exp)
-		{
-			var isExponential = e != null;
-			var isPositional = p != null;
+			private NumberFormatInfo NuberFormatInfo { get; }
 
-			var useExponential = true;
-			if (isExponential && isPositional)
+			private string NaN => NuberFormatInfo.NaNSymbol;
+			private string PositiveInf => NuberFormatInfo.PositiveInfinitySymbol;
+			private string NegativeInf => NuberFormatInfo.NegativeInfinitySymbol;
+			private string PositiveSign => NuberFormatInfo.PositiveSign;
+			private string NegativeSign => NuberFormatInfo.NegativeSign;
+			private string Separator => NuberFormatInfo.NumberDecimalSeparator;
+
+			public StringFormatOptions(BigFloat number, NumberFormatInfo nfi)
 			{
-				if (p.Contains(exp) && !e.Contains(exp))
-					useExponential = false;
+				Number = number;
+				NuberFormatInfo = nfi;
 			}
-			else if (isPositional)
-				useExponential = p.Contains(exp);
-			else if (isExponential)
-				useExponential = !e.Contains(exp);
-			return useExponential;
-		}
 
-		private string ApplyExponent(string str, long exp, int sbase, ExponentialDecimalOptions e, string plus, string minus)
-		{
-			var mark = sbase > 16 ? "@" : e?.Mark ?? "E";
-			var sign = e?.SignOptions ?? new SignOptions("!!+");
+			private SignOptions Sign;
+			private int Base = 10;
+			private uint SignigicantDigits;
+			private PositionalDecimalOptions Positional;
+			private ExponentialDecimalOptions Exponential;
+			private bool UnchangedRounding;
+			private bool UnchangedLength;
 
-			var sigexp = "";
-			switch (Math.Sign(exp))
+			private string Value;
+			private long Exponent;
+			private int SignOffset;
+			private string SignPart;
+			private string DigitsPart;
+			private string LDigitsPart;
+			private string RDigitsPart;
+
+			public void Parse(string format)
 			{
-				case 0:
-					switch (sign.WhenZero)
+				if (format.IsVoid())
+					return;
+
+				var options = new HashSet<char>();
+				var m = formatPattern.Match(format);
+				var pos = 0;
+				while (m.Success)
+				{
+					var capture = m.Captures[0].Value;
+					var optval = capture.Substring(1);
+					var opt = capture[0];
+					switch (opt)
+					{
+						case '^':
+							Sign = new SignOptions(optval);
+							break;
+
+						case 'b':
+							int sbase;
+							if (!int.TryParse(optval, out sbase) || sbase < 2 || sbase > 62)
+								throw new FormatException($"A format with the base '{sbase}' is not supported. Use a number between 2 and 62.");
+							Base = sbase;
+							break;
+
+						case 'd':
+							uint digits;
+							if (!uint.TryParse(optval, out digits) || (digits < 2 && digits != 0))
+								throw new FormatException($"A format with the number of digits '{digits}' is not supported. Use a number greater than 2 or 0.");
+							SignigicantDigits = digits;
+							break;
+
+						case 'p':
+							Positional = new PositionalDecimalOptions(m);
+							break;
+
+						case '@':
+						case 'E':
+						case 'e':
+							opt = 'e';
+							Exponential = new ExponentialDecimalOptions(m);
+							break;
+
+						case 'u':
+							if (optval.Length == 0)
+							{
+								UnchangedRounding = true;
+								UnchangedLength = true;
+							}
+							else
+							{
+								UnchangedRounding = optval.Contains('=');
+								UnchangedLength = optval.Contains('#');
+							}
+							break;
+					}
+
+					if (!options.Add(opt))
+						throw new FormatException($"There are duplicate format options specified for the group '{opt}'.");
+
+					pos = m.Index + m.Length;
+					m = m.NextMatch();
+				}
+
+				if (pos < format.Length)
+					throw new FormatException($"An unsupported format: '{format}' at position {pos}.");
+			}
+
+			public string Format()
+			{
+				if (IsNaN)
+					return Base > 16 ? $"@{NaN}@" : NaN;
+
+				if (IsInf)
+				{
+					var infinity = IsNegative ? NegativeInf : PositiveInf;
+					var prefix = IsNegative ? NegativeSign : PositiveSign;
+
+					if (Sign != null)
+					{
+						switch (Sign.WhenPositive)
+						{
+							case ValueSignOption.Always:
+								return infinity.PrependOnce(prefix);
+
+							case ValueSignOption.None:
+								return infinity.SkipOnce(prefix);
+						}
+					}
+
+					if (Base > 16)
+					{
+						if (infinity.StartsWith(prefix))
+							return $"{infinity.Insert(prefix.Length, "@")}@";
+						return $"@{infinity}@";
+					}
+					return infinity;
+				}
+
+				Value = Number.ToString(Base, SignigicantDigits, out Exponent);
+
+				ApplySign();
+
+				Value.SplitParts(SignOffset, out SignPart, out DigitsPart);
+
+				Normalize();
+
+				var useExponential = ShouldUseExponential();
+				if (useExponential)
+					ApplyExponential();
+				else
+					ApplyPositional();
+
+				return Value;
+			}
+
+			private void ApplySign()
+			{
+				var dm = notDigitPattern.Match(Value);
+				if (dm.Success)
+					SignOffset = dm.Groups[0].Value.Length;
+
+				if (Sign == null)
+					return;
+
+				if (Number.IsZero())
+				{
+					switch (Sign.WhenZero)
 					{
 						case ZeroSignOption.Always:
+							ReplaceSign(Number.IsNegative() ? NegativeSign : PositiveSign);
+							break;
+
 						case ZeroSignOption.Plus:
-						case ZeroSignOption.Default:
-							sigexp = plus;
+							ReplaceSign(PositiveSign);
 							break;
 
 						case ZeroSignOption.Minus:
-							sigexp = minus;
+							ReplaceSign(NegativeSign);
+							break;
+
+						case ZeroSignOption.None:
+							ReplaceSign();
 							break;
 					}
-					break;
-
-				case 1:
-					switch (sign.WhenPositive)
-					{
-						case ValueSignOption.Always:
-						case ValueSignOption.Default:
-							sigexp = plus;
-							break;
-					}
-					break;
-
-				case -1:
-					switch (sign.WhenNegative)
-					{
-						case ValueSignOption.Always:
-						case ValueSignOption.Default:
-							sigexp = minus;
-							break;
-					}
-					break;
-			}
-
-			return $"{str}{mark}{sigexp}{Math.Abs(exp)}";
-		}
-
-		private string ApplyPositional(string str, long exp, int offset, PositionalDecimalOptions p, string separator)
-		{
-			var fixedPrefix = Math.Max(p?.FixedPrefix ?? 1, 1);
-			var fixedSuffix = p?.FixedSuffix ?? 0;
-			var optionalSuffix = p?.OptionalSuffix ?? 0;
-
-			string sign, digits;
-			str.SplitParts(offset, out sign, out digits);
-
-			string ldigits, rdigits;
-			str.SplitParts(exp, out ldigits, out rdigits);
-
-			rdigits = rdigits.TrimEnd('0');
-
-			if (ldigits.Length < fixedPrefix)
-				ldigits = ldigits.PadLeft(fixedPrefix, '0');
-			if (rdigits.Length < fixedSuffix)
-				rdigits = rdigits.PadRight(fixedSuffix, '0');
-
-			if (optionalSuffix > fixedSuffix)
-			{
-				string fs, os;
-				rdigits.SplitParts(optionalSuffix - fixedSuffix, out fs, out os);
-
-				if (os.Length > 0)
+				}
+				else
 				{
-					os = lastZerosPattern.Replace(os, "");
-					rdigits = fs + os;
+					var prefix = IsNegative ? NegativeSign : PositiveSign;
+					switch (Sign.WhenPositive)
+					{
+						case ValueSignOption.Always:
+							ReplaceSign(prefix);
+							break;
+
+						case ValueSignOption.None:
+							ReplaceSign();
+							break;
+					}
 				}
 			}
 
-			return rdigits.Length > 0 ? $"{sign}{ldigits}{separator}{rdigits}" : $"{sign}{ldigits}";
-		}
-
-		private string Normalize(string str, long exp, int sbase)
-		{
-			if (str.IsVoid())
-				return str;
-
-			var last = _digits[sbase];
-			if (str.LastChar() != last)
-				return str;
-
-			var alt = str.TrimEnd(last);
-			if (alt.Length == 0)
-				alt = "1";
-			else
+			private void ReplaceSign(string mark = "")
 			{
-				last = _digits[(_position[alt.LastChar()] + 1) % sbase];
-				alt = $"{(alt.Length > 1 ? alt.Substring(0, alt.Length - 1) : "")}{last}";
+				if (SignOffset != 0)
+				{
+					Value = mark + Value.Substring(SignOffset);
+					SignOffset = 0;
+				}
+				else if (mark.Length != 0)
+				{
+					Value = mark + Value;
+					SignOffset = mark.Length;
+				}
 			}
 
-			var check = new BigFloat($"0.{alt}@{(exp >= 0 ? "+" : "-")}{exp}", sbase, Precision);
-			if (check.IsEqual(this))
-				return alt;
+			private void Normalize()
+			{
+				if (DigitsPart.IsVoid())
+					return;
 
-			return str;
+				if (UnchangedRounding || Exponent > DigitsPart.Length)
+					return;
+
+				var max = _digits[Base];
+				var last = DigitsPart.TakeLast(2);
+
+				string alt;
+				if (last.StartsWith(max.ToString()))
+					alt = DigitsPart.SkipLast(2);
+				else if (last.EndsWith(max.ToString()))
+					alt = DigitsPart.SkipLast();
+				else
+					return;
+
+				var exp = Exponent;
+				alt = alt.TrimEnd(max);
+				if (alt.Length == 0)
+				{
+					alt = "1";
+					exp = Exponent + 1;
+				}
+				else
+				{
+					var c = alt.TakeLast()[0];
+					max = _digits[_position[c] + 1];
+					alt = $"{(alt.Length > 1 ? alt.Substring(0, alt.Length - 1) : "")}{max}";
+				}
+
+				var check = new BigFloat($"0.{alt}@{(exp >= 0 ? "+" : "-")}{Math.Abs(Exponent)}", Base, Number.Precision);
+				if (!check.IsEqual(Number))
+					return;
+
+				if (UnchangedLength)
+					alt = alt.PadRight(DigitsPart.Length, '0');
+
+				Exponent = exp;
+				DigitsPart = alt;
+				Value = $"{SignPart}{DigitsPart}";
+			}
+
+			private bool ShouldUseExponential()
+			{
+				var isExponential = Exponential != null && Exponential.Contains(Exponent);
+				var isPositional = Positional != null && Positional.Contains(Exponent);
+
+				if (isExponential && isPositional)
+					return true;
+				if (isExponential)
+					return true;
+				if (isPositional)
+					return false;
+				return true;
+			}
+
+			private void ApplyExponential()
+			{
+				var expMark = Base > 16 ? "@" : Exponential?.Mark ?? "E";
+				var signopt = Exponential?.SignOptions ?? new SignOptions("!!+");
+
+				var expSign = "";
+				switch (Math.Sign(Exponent))
+				{
+					case 0:
+						switch (signopt.WhenZero)
+						{
+							case ZeroSignOption.Always:
+							case ZeroSignOption.Plus:
+							case ZeroSignOption.Default:
+								expSign = PositiveSign;
+								break;
+
+							case ZeroSignOption.Minus:
+								expSign = NegativeSign;
+								break;
+						}
+						break;
+
+					case 1:
+						switch (signopt.WhenPositive)
+						{
+							case ValueSignOption.Always:
+							case ValueSignOption.Default:
+								expSign = PositiveSign;
+								break;
+						}
+						break;
+
+					case -1:
+						switch (signopt.WhenNegative)
+						{
+							case ValueSignOption.Always:
+							case ValueSignOption.Default:
+								expSign = NegativeSign;
+								break;
+						}
+						break;
+				}
+
+				if (DigitsPart.IsVoid())
+					DigitsPart = "0";
+
+				var exp = Math.Abs(Exponent).ToString("D" + (Exponential?.FixedLength ?? 1));
+				Value = $"{SignPart}0{Separator}{DigitsPart}{expMark}{expSign}{exp}";
+			}
+
+			private void ApplyPositional()
+			{
+				DigitsPart.SplitParts(Exponent, out LDigitsPart, out RDigitsPart);
+
+				var fp = Positional?.FixedPrefix;
+				var fs = Positional?.FixedSuffix;
+				var os = Positional?.OptionalSuffix;
+
+				var fsPresent = fs != null;
+				var osPresent = os != null;
+
+				var fsMark = Positional?.HasFixedSuffix ?? false;
+				var osMark = Positional?.HasOptionalSuffix ?? false;
+
+				if (fsMark && !fsPresent)
+					fs = Math.Max(NuberFormatInfo.NumberDecimalDigits, 0);
+
+				int? trimLen = null, padLen = null;
+
+				if (fsMark && osMark)
+				{
+					if (!osPresent)
+						padLen = fs;
+					else
+					{
+						trimLen = Math.Max(fs.Value, os.Value);
+						padLen = fs.Value;
+					}
+				}
+				else if (fsMark)
+				{
+					trimLen = fs.Value;
+					padLen = fs.Value;
+				}
+				else if (osMark)
+				{
+					trimLen = os;
+				}
+				else if (fp != null)
+				{
+					trimLen = 0;
+				}
+
+				fp = Math.Max(fp ?? 1, 1);
+				if (LDigitsPart.Length < fp)
+					LDigitsPart = LDigitsPart.PadLeft(fp.Value, '0');
+
+				if (RDigitsPart.Length > trimLen)
+					RDigitsPart = RDigitsPart.Substring(0, trimLen.Value);
+
+				if (RDigitsPart.Length < padLen)
+					RDigitsPart = RDigitsPart.PadRight(padLen.Value, '0');
+
+				Value = RDigitsPart.Length == 0 ? $"{SignPart}{LDigitsPart}" : $"{SignPart}{LDigitsPart}{Separator}{RDigitsPart}";
+			}
 		}
 
 		#region SignOptions
@@ -631,7 +767,6 @@ namespace System.Numerics.MPFR
 
 		private class DecimalOptions : IInterval
 		{
-			private IInterval[] Comparisons { get; }
 			private IInterval[] Intervals { get; }
 
 			protected DecimalOptions(Match match)
@@ -640,23 +775,25 @@ namespace System.Numerics.MPFR
 					.Where(x => x.Success)
 					.Select(x => x.Captures.ToEnumerable().Cast<Capture>().Select(c => new Comparison(c.Value)).ToArray())
 					.FirstOrDefault() ?? new Comparison[0];
-				Comparisons = comparisons.OfType<IInterval>().ToArray();
 
 				var intervals = new[] { match.Groups["e_interval"], match.Groups["p_interval"] }
 					.Where(x => x.Success)
 					.Select(x => x.Captures.ToEnumerable().Cast<Capture>().Select(c => new Interval(c.Value)).ToArray())
 					.FirstOrDefault() ?? new Interval[0];
-				Intervals = intervals.OfType<IInterval>().ToArray();
+
+				Intervals = comparisons.OfType<IInterval>().Concat(intervals).ToArray();
 			}
 
-			public bool Contains(long exponent) => Comparisons.Concat(Intervals).Any(x => x.Contains(exponent));
+			public bool Contains(long exponent) => Intervals.IsEmpty() || Intervals.Any(x => x.Contains(exponent));
 		}
 
 		private class PositionalDecimalOptions : DecimalOptions
 		{
 			public int FixedPrefix { get; }
-			public int FixedSuffix { get; }
-			public int OptionalSuffix { get; }
+			public bool HasFixedSuffix { get; }
+			public int? FixedSuffix { get; }
+			public bool HasOptionalSuffix { get; }
+			public int? OptionalSuffix { get; }
 
 			public PositionalDecimalOptions(Match match) : base(match)
 			{
@@ -666,11 +803,21 @@ namespace System.Numerics.MPFR
 
 				var fsGroup = match.Groups["p_fixedSuffix"];
 				if (fsGroup.Success && !fsGroup.Value.IsVoid())
-					FixedSuffix = int.Parse(fsGroup.Value);
+				{
+					HasFixedSuffix = true;
+					var fs = fsGroup.Value.Substring(1);
+					if (fs.Length > 0)
+						FixedSuffix = int.Parse(fs);
+				}
 
 				var osGroup = match.Groups["p_optionalSuffix"];
 				if (osGroup.Success && !osGroup.Value.IsVoid())
-					OptionalSuffix = int.Parse(osGroup.Value);
+				{
+					HasOptionalSuffix = true;
+					var os = osGroup.Value.Substring(1);
+					if (os.Length > 0)
+						OptionalSuffix = int.Parse(os);
+				}
 			}
 		}
 
@@ -678,17 +825,24 @@ namespace System.Numerics.MPFR
 		{
 			public SignOptions SignOptions { get; }
 			public string Mark { get; }
+			public int? FixedLength { get; }
 
 			public ExponentialDecimalOptions(Match match) : base(match)
 			{
 				Mark = match.Groups["exponent"].Value.Substring(0, 1);
 
 				var signGroup = match.Groups["e_sign"];
-				if (!signGroup.Success)
-					return;
+				if (signGroup.Success)
+				{
+					var sign = signGroup.Value;
+					SignOptions = new SignOptions(sign);
+				}
 
-				var sign = signGroup.Value;
-				SignOptions = new SignOptions(sign);
+				var flGroup = match.Groups["e_fixedLength"];
+				if (flGroup.Success)
+				{
+					FixedLength = int.Parse(flGroup.Value);
+				}
 			}
 		}
 

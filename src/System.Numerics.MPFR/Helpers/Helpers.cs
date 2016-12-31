@@ -134,14 +134,66 @@ namespace System.Numerics.MPFR.Helpers
 			return str.StartsWith(prefix) ? str.Remove(0, prefix.Length) : str;
 		}
 
-		public static string Last(this string str)
+		public static string TakeLast(this string str, int n = 1)
 		{
-			return str.IsVoid() ? "" : str.Substring(str.Length - 1);
+			if (str.IsVoid())
+				return string.Empty;
+
+			if (n < 0)
+			{
+				if (str.Length + n < 0)
+					return string.Empty;
+
+				return str.Substring(str.Length + n);
+			}
+
+			if (n > str.Length)
+				n = str.Length;
+
+			return str.Substring(str.Length - n);
 		}
 
-		public static char LastChar(this string str)
+		public static string SkipFirst(this string str, int n = 1) => str.TakeLast(-n);
+
+		public static string TakeFirst(this string str, int n = 1)
 		{
-			return str.IsVoid() ? default(char) : str[str.Length - 1];
+			if (str.IsVoid())
+				return string.Empty;
+
+			if (n < 0)
+			{
+				if (str.Length + n < 0)
+					return str;
+
+				return str.Substring(0, str.Length + n);
+			}
+
+			if (n > str.Length)
+				n = str.Length;
+
+			return str.Substring(0, n);
+		}
+
+		public static string SkipLast(this string str, int n = 1) => str.TakeFirst(-n);
+
+		public static bool IsEmpty<T>(this IEnumerable<T> items)
+		{
+			if (items == null)
+				return true;
+
+			var items1 = items as T[];
+			if (items1 != null)
+				return items1.Length == 0;
+
+			var collection1 = items as ICollection;
+			if (collection1 != null)
+				return collection1.Count == 0;
+
+			var collection2 = items as ICollection<T>;
+			if (collection2 != null)
+				return collection2.Count == 0;
+
+			return !items.Any();
 		}
 	}
 }
