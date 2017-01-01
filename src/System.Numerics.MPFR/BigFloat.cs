@@ -208,26 +208,25 @@ namespace System.Numerics.MPFR
 		#endregion
 
 		#region ToString
-		private static readonly Regex notDigitPattern = new Regex("^([^0-9]*)", RegexOptions.Compiled);
-		private static readonly Regex lastZerosPattern = new Regex("0*$", RegexOptions.Compiled);
+		private static readonly Regex notDigitPattern = new Regex("^([^0-9a-zA-Z@]*)", RegexOptions.Compiled);
 		private static readonly Regex formatPattern = new Regex(@"
-			(?<sign>^[^][!;_][!;_][!;_+-]) | # !always ;default _none +positive -negative
+			^(?<sign>\^[!;_]([!;_]([!;_+-])?)?) | # !always ;default _none +positive -negative
 			(?<base>b[0-9]+) |
 			(?<digits>d[0-9]+) |
 			(?<positional>p
 				(?<p_fixedPrefix>[0-9]*)? # before .
-				(?<p_fixedSuffix>[.][0-9]*)? # at least after ., '.' means
-				(?<p_optionalSuffix>[#][0-9]*)? # optional after .
+				(?<p_fixedSuffix>[.][0-9]*)? # at least after ., '.' means default
+				(?<p_optionalSuffix>[#][0-9]*)? # optional after ., '#' means unrestricted
 				(
 					(?<p_comparison>([=]|([<>][=]?))[+-]?[0-9]+) |
 					(?<p_interval>[(][+-]?[0-9]+;[+-]?[0-9]+[)])
 				)*
 			) |
-			(?<exponent>[eE]
-				([^](?<e_sign>[!;][!;][!;_+-])?
-				(?<e_fixedLength>[0-9]*)?
+			(?<exponent>[eE@]
+				(?<e_fixedLength>[0-9]+)?
+				(\^(?<e_sign>[!;_]([!;_]([!;_+-])?)?))?
 				(
-					(?<e_comparison>[<>]?[=]?[+-]?[0-9]+) |
+					(?<e_comparison>([<>][=]|[=]|[<>])[+-]?[0-9]+) |
 					([(](?<e_interval>[+-]?[0-9]+;[+-]?[0-9]+)[)])
 				)*
 			) |
@@ -538,7 +537,7 @@ namespace System.Numerics.MPFR
 				if (last.Length < 2)
 					return;
 
-				long exp = Exponent;
+				var exp = Exponent;
 				string alt;
 				if (last[1] != '0' && last[1] != max)
 					last = last.TakeFirst();
@@ -764,8 +763,8 @@ namespace System.Numerics.MPFR
 
 		private enum ZeroSignOption
 		{
-			Always,
 			Default,
+			Always,
 			None,
 			Plus,
 			Minus,

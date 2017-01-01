@@ -59,10 +59,31 @@ namespace System.Numerics.MPFR.Tests
 			Thread.CurrentThread.CurrentCulture = culture;
 			Thread.CurrentThread.CurrentUICulture = culture;
 
+			new BigFloat("NaN").ToString().Should().Be("NaN");
+			new BigFloat("Inf").ToString().Should().Be("∞");
+			new BigFloat("Inf").ToString("^!").Should().Be("+∞");
+			new BigFloat("-Inf").ToString().Should().Be("-∞");
+
 			new BigFloat("5").ToString("b2d5").Should().Be("0.101E+3");
 
+			new BigFloat("0.001").ToString().Should().Be("0.1E-2");
 			new BigFloat("-5.123").ToString("d3").Should().Be("-0.512E+1");
 			new BigFloat("5").ToString("d5u").Should().Be("0.50000E+1");
+			new BigFloat("0.001").ToString().Should().Be("0.1E-2");
+			new BigFloat("-0.001").ToString().Should().Be("-0.1E-2");
+			new BigFloat("-0.001").ToString("E2").Should().Be("-0.1E-02");
+			new BigFloat("-0.001").ToString("E2").Should().Be("-0.1E-02");
+			new BigFloat("-0.001").ToString("e3^__").Should().Be("-0.1e002");
+			new BigFloat("-0.001").ToString("@3^_!").Should().Be("-0.1@-002");
+			new BigFloat("-0.001").ToString("E3^_;").Should().Be("-0.1E-002");
+			new BigFloat("-0.1").ToString("E^___").Should().Be("-0.1E0");
+			new BigFloat("-0.1").ToString("E^__!").Should().Be("-0.1E+0");
+			new BigFloat("-0.1").ToString("E^__;").Should().Be("-0.1E+0");
+			new BigFloat("-0.1").ToString("E^__+").Should().Be("-0.1E+0");
+			new BigFloat("-0.1").ToString("E^__-").Should().Be("-0.1E-0");
+			new BigFloat("-1").ToString("E2^!").Should().Be("-0.1E+01");
+			new BigFloat("-1").ToString("E1^;").Should().Be("-0.1E+1");
+			new BigFloat("-1").ToString("E0^_").Should().Be("-0.1E1");
 
 			new BigFloat("5").ToString("p2").Should().Be("05");
 			new BigFloat("-5.1").ToString("p2").Should().Be("-05");
