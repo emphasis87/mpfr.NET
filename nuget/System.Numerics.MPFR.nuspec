@@ -10,7 +10,7 @@
 		<projectUrl>https://github.com/emphasis87/mpfr.NET</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>A .NET wrapper for the GNU MPFR library.</description>
-		<releaseNotes>A pre-release package with a basic functionality</releaseNotes>
+		<releaseNotes>Added ToString formatting options</releaseNotes>
 		<copyright>Copyright (c) Luboš Hemala</copyright>
 		<tags>mpfr numerics multi arbitrary precision</tags>
 	</metadata>
