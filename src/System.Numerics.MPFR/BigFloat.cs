@@ -218,8 +218,8 @@ namespace System.Numerics.MPFR
 				(?<p_fixedSuffix>[.][0-9]*)? # at least after ., '.' means default
 				(?<p_optionalSuffix>[#][0-9]*)? # optional after ., '#' means unrestricted
 				(
-					(?<p_comparison>([=]|([<>][=]?))[+-]?[0-9]+) |
-					(?<p_interval>[(][+-]?[0-9]+;[+-]?[0-9]+[)])
+					(?<p_comparison>([<>][=]|[=]|[<>])[+-]?[0-9]+) |
+					([(](?<p_interval>[+-]?[0-9]+[,;][+-]?[0-9]+)[)])
 				)*
 			) |
 			(?<exponent>[eE@]
@@ -227,7 +227,7 @@ namespace System.Numerics.MPFR
 				(\^(?<e_sign>[!;_]([!;_]([!;_+-])?)?))?
 				(
 					(?<e_comparison>([<>][=]|[=]|[<>])[+-]?[0-9]+) |
-					([(](?<e_interval>[+-]?[0-9]+;[+-]?[0-9]+)[)])
+					([(](?<e_interval>[+-]?[0-9]+[,;][+-]?[0-9]+)[)])
 				)*
 			) |
 			(?<unchanged>u((?:[=#])(?!.*\1))?) # rounding or length",
@@ -541,7 +541,7 @@ namespace System.Numerics.MPFR
 				string alt;
 				if (last[1] != '0' && last[1] != max)
 					last = last.TakeFirst();
-				
+
 				if (last[0] == '0')
 					alt = DigitsPart.SkipLast().TrimEnd('0');
 				else if (last[0] == max)
@@ -576,15 +576,19 @@ namespace System.Numerics.MPFR
 
 			private bool ShouldUseExponential()
 			{
-				var isExponential = Exponential != null && Exponential.Contains(Exponent);
-				var isPositional = Positional != null && Positional.Contains(Exponent);
+				var e = Exponential != null;
+				var ec = Exponential?.Contains(Exponent) ?? false;
 
-				if (isExponential && isPositional)
-					return true;
-				if (isExponential)
-					return true;
-				if (isPositional)
-					return false;
+				var p = Positional != null;
+				var pc = Positional?.Contains(Exponent) ?? false;
+
+				if (e && p)
+					return ec || !pc;
+				if (e)
+					return ec;
+				if (p)
+					return !pc;
+
 				return true;
 			}
 
@@ -647,6 +651,12 @@ namespace System.Numerics.MPFR
 					var pad = (int) Math.Abs(Exponent) - LDigitsPart.Length;
 					if (pad > 0)
 						RDigitsPart = new string('0', pad) + RDigitsPart;
+				}
+				else if (Exponent > 0)
+				{
+					var pad = (int)Math.Abs(Exponent) - LDigitsPart.Length;
+					if (pad > 0)
+						LDigitsPart += new string('0', pad);
 				}
 
 				var fp = Positional?.FixedPrefix;
@@ -928,12 +938,12 @@ namespace System.Numerics.MPFR
 
 		private class Interval : IInterval
 		{
-			public int First { get; }
-			public int Second { get; }
+			private int First { get; }
+			private int Second { get; }
 
 			public Interval(string interval)
 			{
-				var values = interval.Split(';').Select(int.Parse).OrderBy(x => x).ToArray();
+				var values = interval.Split(';', ',').Select(int.Parse).OrderBy(x => x).ToArray();
 				First = values[0];
 				Second = values[1];
 			}

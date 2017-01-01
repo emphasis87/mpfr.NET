@@ -84,6 +84,7 @@ namespace System.Numerics.MPFR.Tests
 			new BigFloat("-1").ToString("E2^!").Should().Be("-0.1E+01");
 			new BigFloat("-1").ToString("E1^;").Should().Be("-0.1E+1");
 			new BigFloat("-1").ToString("E0^_").Should().Be("-0.1E1");
+			new BigFloat("-1").ToString("E").Should().Be("-0.1E+1");
 
 			new BigFloat("5").ToString("p2").Should().Be("05");
 			new BigFloat("-5.1").ToString("p2").Should().Be("-05");
@@ -99,13 +100,39 @@ namespace System.Numerics.MPFR.Tests
 			new BigFloat("5.456789").ToString("p.#4").Should().Be("5.4567");
 			new BigFloat("5.456789").ToString("p#2").Should().Be("5.45");
 			new BigFloat("-5.456789").ToString("p#").Should().Be("-5.456789");
-			new BigFloat("5.4567").ToString("p4#2").Should().Be("0005.45");
+			new BigFloat("500.4567").ToString("p4#2").Should().Be("0500.45");
 			new BigFloat("5.4567").ToString("p4#").Should().Be("0005.4567");
-			new BigFloat("5.4567").ToString("p4#0").Should().Be("0005");
-			new BigFloat("5.4567").ToString("p4.0#0").Should().Be("0005");
+			new BigFloat("512.4567").ToString("p4#0").Should().Be("0512");
+			new BigFloat("51234.4567").ToString("p4.0#0").Should().Be("51234");
 			new BigFloat("-5.4567").ToString("p4.#").Should().Be("-0005.4567");
 			new BigFloat("5.45").ToString("p4.#").Should().Be("0005.450");
 			new BigFloat("-1E-3").ToString("p").Should().Be("-0.001");
+
+			new BigFloat("5.67").ToString("pu").Should().Be("5.6699999999999999");
+			new BigFloat("5.67").ToString("pu#").Should().Be("5.6700000000000000");
+			new BigFloat("5.67").ToString("pu=").Should().Be("5.6699999999999999");
+
+			new BigFloat("5.67").ToString("eu").Should().Be("0.56699999999999999e+1");
+			new BigFloat("5.67").ToString("eu#").Should().Be("0.56700000000000000e+1");
+			new BigFloat("5.67").ToString("eu=").Should().Be("0.56699999999999999e+1");
+
+			new BigFloat("-1").ToString("E=0p=1").Should().Be("-1");
+			new BigFloat("-1").ToString("E=1p=1").Should().Be("-0.1E+1");
+			new BigFloat("-1").ToString("E=1p=0").Should().Be("-0.1E+1");
+
+			new BigFloat("100").ToString("E(-1,1)=3").Should().Be("0.1E+3");
+			new BigFloat("10").ToString("E(-1,1)=3").Should().Be("10");
+			new BigFloat("1").ToString("E(-1,1)=3").Should().Be("0.1E+1");
+			new BigFloat("0.1").ToString("E(-1,1)=3").Should().Be("0.1E+0");
+			new BigFloat("0.01").ToString("E(-1,1)=3").Should().Be("0.1E-1");
+			new BigFloat("0.001").ToString("E(-1,1)=3").Should().Be("0.001");
+
+			new BigFloat("100").ToString("p(-1,1)=3").Should().Be("100");
+			new BigFloat("10").ToString("p(-1,1)=3").Should().Be("0.1E+2");
+			new BigFloat("1").ToString("p=3(-1,1)").Should().Be("1");
+			new BigFloat("0.1").ToString("p(-1,1)=3").Should().Be("0.1");
+			new BigFloat("0.01").ToString("p(-1,1)=3").Should().Be("0.01");
+			new BigFloat("0.001").ToString("p=3(-1,1)=3").Should().Be("0.1E-2");
 		}
 	}
 }
