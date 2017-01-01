@@ -98,6 +98,7 @@ namespace mpfrNET.TestApp
 
 			try
 			{
+				/*
 				//BD();
 				for (int i = 0; i < 5; i++)
 				{
@@ -117,6 +118,12 @@ namespace mpfrNET.TestApp
 
 				var ve = MPFRLibrary.mpfr_get_version();
 				Console.WriteLine(ve);
+				*/
+
+				var num = new BigFloat("10", precision: 100);
+				num.Log();
+				// Should print: 23025850929940456840179914546838
+				Console.WriteLine(num.ToString("p"));
 			}
 			catch (DllNotFoundException ex)
 			{

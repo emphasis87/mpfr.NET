@@ -60,12 +60,6 @@
     <Compile Include="SpecialFunctionsTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\System.Numerics.MPFR.Native\System.Numerics.MPFR.Native.vcxproj">
-      <Project>{bf96cb71-f73f-4959-8b33-66eb58cd00f9}</Project>
-      <Name>System.Numerics.MPFR.Native</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

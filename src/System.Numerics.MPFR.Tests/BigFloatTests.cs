@@ -133,6 +133,10 @@ namespace System.Numerics.MPFR.Tests
 			new BigFloat("0.1").ToString("p(-1,1)=3").Should().Be("0.1");
 			new BigFloat("0.01").ToString("p(-1,1)=3").Should().Be("0.01");
 			new BigFloat("0.001").ToString("p=3(-1,1)=3").Should().Be("0.1E-2");
+
+			var flt = new BigFloat("10", precision: 100);
+			flt.Log();
+			flt.ToString("p").Should().Be("2.302585092994045684017991454683");
 		}
 	}
 }

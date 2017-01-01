@@ -167,7 +167,8 @@ namespace System.Numerics.MPFR
 		protected void Initialize(ulong? precision = null)
 		{
 			var v = new mpfr_struct();
-			mpfr_init2(v, precision ?? Precision);
+			Precision = precision ?? DefaultPrecision;
+			mpfr_init2(v, Precision);
 			_value = v;
 		}
 
@@ -243,11 +244,33 @@ namespace System.Numerics.MPFR
 			return fmt.Format();
 		}
 
+		private static readonly Dictionary<int, double> _lns = new Dictionary<int, double>();
+		private static double GetLn(int n)
+		{
+			if (_lns.ContainsKey(n))
+				return _lns[n];
+
+			var ln = Math.Log(n);
+			_lns[n] = ln;
+			return ln;
+		}
+
+		private static readonly Dictionary<int, double> _ratios = new Dictionary<int, double>();
+		private static double GetRatio(int n)
+		{
+			if (_ratios.ContainsKey(n))
+				return _ratios[n];
+
+			var ratio = GetLn(n)/GetLn(2);
+			_ratios[n] = ratio;
+			return ratio;
+		}
+
 		public string ToString(int sbase, uint digits, out long exponent)
 		{
-			var capacity = digits == 0
-				? (int)Math.Ceiling((decimal)Precision / (sbase - 1)) + 8
-				: (int)Math.Max(digits + 2, 7);
+			var capacity = 7 + (digits == 0
+				? (int) Math.Ceiling(Precision/GetRatio(sbase))
+				: (int) digits + 2);
 
 			var sb = new StringBuilder(capacity);
 			exponent = 0;
