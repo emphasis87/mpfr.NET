@@ -253,6 +253,8 @@ namespace System.Numerics.MPFR
 			var sb = new StringBuilder(capacity);
 			exponent = 0;
 			mpfr_get_str(sb, ref exponent, sbase, digits, _value, GetRounding());
+			if (exponent > int.MaxValue && CmpAbs(new BigFloat(1)) < 0)
+				exponent = -((1L << 32) - exponent);
 			var str = sb.ToString();
 
 			return str;
@@ -533,29 +535,35 @@ namespace System.Numerics.MPFR
 				var max = _digits[Base];
 				var last = DigitsPart.TakeLast(2);
 
-				string alt;
-				if (last.StartsWith(max.ToString()))
-					alt = DigitsPart.SkipLast(2);
-				else if (last.EndsWith(max.ToString()))
-					alt = DigitsPart.SkipLast();
-				else
+				if (last.Length < 2)
 					return;
 
-				var exp = Exponent;
-				alt = alt.TrimEnd(max);
-				if (alt.Length == 0)
+				long exp = Exponent;
+				string alt;
+				if (last[1] != '0' && last[1] != max)
+					last = last.TakeFirst();
+				
+				if (last[0] == '0')
+					alt = DigitsPart.SkipLast().TrimEnd('0');
+				else if (last[0] == max)
 				{
-					alt = "1";
-					exp = Exponent + 1;
+					alt = DigitsPart.SkipLast().TrimEnd(max);
+					if (alt.Length == 0)
+					{
+						alt = "1";
+						exp = Exponent + 1;
+					}
+					else if (last[0] == max)
+					{
+						var c = alt.TakeLast()[0];
+						max = _digits[_position[c] + 1];
+						alt = $"{(alt.Length > 1 ? alt.Substring(0, alt.Length - 1) : "")}{max}";
+					}
 				}
 				else
-				{
-					var c = alt.TakeLast()[0];
-					max = _digits[_position[c] + 1];
-					alt = $"{(alt.Length > 1 ? alt.Substring(0, alt.Length - 1) : "")}{max}";
-				}
+					alt = DigitsPart.SkipLast();
 
-				var check = new BigFloat($"0.{alt}@{(exp >= 0 ? "+" : "-")}{Math.Abs(Exponent)}", Base, Number.Precision);
+				var check = new BigFloat($"{SignPart}0.{alt}@{(exp >= 0 ? "+" : "-")}{Math.Abs(Exponent)}", Base, Number.Precision);
 				if (!check.IsEqual(Number))
 					return;
 
@@ -635,6 +643,12 @@ namespace System.Numerics.MPFR
 			private void ApplyPositional()
 			{
 				DigitsPart.SplitParts(Exponent, out LDigitsPart, out RDigitsPart);
+				if (Exponent < 0)
+				{
+					var pad = (int) Math.Abs(Exponent) - LDigitsPart.Length;
+					if (pad > 0)
+						RDigitsPart = new string('0', pad) + RDigitsPart;
+				}
 
 				var fp = Positional?.FixedPrefix;
 				var fs = Positional?.FixedSuffix;
@@ -789,7 +803,7 @@ namespace System.Numerics.MPFR
 
 		private class PositionalDecimalOptions : DecimalOptions
 		{
-			public int FixedPrefix { get; }
+			public int? FixedPrefix { get; }
 			public bool HasFixedSuffix { get; }
 			public int? FixedSuffix { get; }
 			public bool HasOptionalSuffix { get; }
