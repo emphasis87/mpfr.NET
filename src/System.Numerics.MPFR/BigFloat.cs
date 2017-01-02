@@ -216,19 +216,19 @@ namespace System.Numerics.MPFR
 			(?<digits>d[0-9]+) |
 			(?<positional>p
 				(?<p_fixedPrefix>[0-9]*)? # before .
-				(?<p_fixedSuffix>[.][0-9]*)? # at least after ., '.' means default
-				(?<p_optionalSuffix>[#][0-9]*)? # optional after ., '#' means unrestricted
+				(?<p_fixedSuffix>\.[0-9]*)? # at least after ., '.' means default
+				(?<p_optionalSuffix>\#[0-9]*)? # optional after ., '#' means unrestricted
 				(
-					(?<p_comparison>([<>][=]|[=]|[<>])[+-]?[0-9]+) |
-					([(](?<p_interval>[+-]?[0-9]+[,;][+-]?[0-9]+)[)])
+					(?<p_comparison>([<>]=|=|[<>])[+-]?[0-9]+) |
+					(\((?<p_interval>[+-]?[0-9]+[,;][+-]?[0-9]+)\))
 				)*
 			) |
 			(?<exponent>[eE@]
 				(?<e_fixedLength>[0-9]+)?
 				(\^(?<e_sign>[!;_]([!;_]([!;_+-])?)?))?
 				(
-					(?<e_comparison>([<>][=]|[=]|[<>])[+-]?[0-9]+) |
-					([(](?<e_interval>[+-]?[0-9]+[,;][+-]?[0-9]+)[)])
+					(?<e_comparison>([<>]=|=|[<>])[+-]?[0-9]+) |
+					(\((?<e_interval>[+-]?[0-9]+[,;][+-]?[0-9]+)\))
 				)*
 			) |
 			(?<unchanged>u((?:[=#])(?!.*\1))?) # rounding or length",
@@ -495,12 +495,12 @@ namespace System.Numerics.MPFR
 				if (Sign == null)
 					return;
 
-				if (Number.IsZero())
+				if (IsZero)
 				{
 					switch (Sign.WhenZero)
 					{
 						case ZeroSignOption.Always:
-							ReplaceSign(Number.IsNegative() ? NegativeSign : PositiveSign);
+							ReplaceSign(IsNegative ? NegativeSign : PositiveSign);
 							break;
 
 						case ZeroSignOption.Plus:
@@ -617,7 +617,7 @@ namespace System.Numerics.MPFR
 
 			private void ApplyExponential()
 			{
-				var expMark = Base > 16 ? "@" : Exponential?.Mark ?? "E";
+				var expMark = Base > 10 ? "@" : Exponential?.Mark ?? "E";
 				var signopt = Exponential?.SignOptions ?? new SignOptions("!!+");
 
 				var expSign = "";

@@ -3,7 +3,7 @@
 public DirectoryPath GitRoot { get; } = GitFindRootFromPath(MakeAbsolute(Directory(".")));
 public FilePath Solution { get; } = Locate("mpfr.NET.sln");
 public string Configuration { get; } = "Debug";
-public string Version { get; } = "1.0.1";
+public string Version { get; } = "1.0.3";
 public string Id { get; } = "System.Numerics.MPFR";
 
 public FilePath Locate(string pattern) => GetFiles(GitRoot + "/**/" + pattern).First();

@@ -85,6 +85,8 @@ namespace System.Numerics.MPFR.Tests
 			new BigFloat("-1").ToString("E1^;").Should().Be("-0.1E+1");
 			new BigFloat("-1").ToString("E0^_").Should().Be("-0.1E1");
 			new BigFloat("-1").ToString("E").Should().Be("-0.1E+1");
+			new BigFloat("1").ToString("b16e").Should().Be("0.1@+1");
+			new BigFloat("1").ToString("b16").Should().Be("0.1@+1");
 
 			new BigFloat("5").ToString("p2").Should().Be("05");
 			new BigFloat("-5.1").ToString("p2").Should().Be("-05");
