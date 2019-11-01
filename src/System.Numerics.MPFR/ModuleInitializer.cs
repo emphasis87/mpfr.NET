@@ -165,6 +165,7 @@ public static class ModuleInitializer
 				WorkingDirectory = AssemblyLocation,
 				Arguments = "x mpfr_gmp.7z",
 				WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+				UseShellExecute = true, 
 			};
 			var proc = Process.Start(info);
 			proc.WaitForExit();
